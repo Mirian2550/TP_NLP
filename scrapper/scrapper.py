@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 import xml.etree.ElementTree as ET
 import logging
 
+
 class Scraper:
     def __init__(self, output_file, security_url, technology_url, sports_url, food_url, counts=10):
         """
@@ -58,7 +59,8 @@ class Scraper:
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36',
         ]
 
-        logging.basicConfig(filename='scraper.log', level=logging.INFO, format='%(asctime)s [%(levelname)s]: %(message)s')
+        logging.basicConfig(filename='scraper.log', level=logging.INFO,
+                            format='%(asctime)s [%(levelname)s]: %(message)s')
 
     def get_random_user_agent(self):
         """
@@ -151,6 +153,7 @@ class Scraper:
 
         except AttributeError as e:
             logging.error(f"Error de atributo: {e}")
+
     def scrape_technology_news(self):
         try:
             headers = {'User-Agent': self.get_random_user_agent()}
@@ -211,8 +214,8 @@ class Scraper:
         # Crear hilos para ejecutar cada scraper
         threads = []
         threads.append(threading.Thread(target=self.scrape_security_news))
-        #threads.append(threading.Thread(target=self.scrape_technology_news))
-        #threads.append(threading.Thread(target=self.scrape_sports_news))
+        # threads.append(threading.Thread(target=self.scrape_technology_news))
+        # threads.append(threading.Thread(target=self.scrape_sports_news))
         threads.append(threading.Thread(target=self.scrape_food_news))
 
         # Iniciar los hilos
