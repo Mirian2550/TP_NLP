@@ -43,6 +43,7 @@ noticia_2 = 'Preparación: ' \
             'reservando 4 mitades de duraznos en almíbar para decorar la torta posteriormente. '
 
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_2])
+
 prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
 print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
