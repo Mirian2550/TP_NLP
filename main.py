@@ -1,3 +1,4 @@
+from clasificador.clasificador import SVMClassifier
 from scrapper.scrapper import Scraper
 
 output_file = 'data/dataset.csv'
@@ -8,3 +9,9 @@ food_url = 'https://www.recetasnestle.com.mx/sitemap.xml'
 
 scraper = Scraper(output_file, security_url, technology_url, sports_url, food_url)
 scraper.run_scrapers()
+
+svm_classifier = SVMClassifier(output_file, kernel='linear', C=1.0)
+svm_classifier.train()
+
+accuracy = svm_classifier.evaluate()
+print(f'Precisión del modelo SVM: {accuracy}')

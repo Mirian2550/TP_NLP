@@ -81,7 +81,7 @@ class Scraper:
             with open(self.output_file, 'a', newline='', encoding='utf-8') as csvfile:
                 fieldnames = ['title', 'url', 'text','category']  # Estructura del CSV: título, URL, texto
                 # Configurar el delimitador y el encoding
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter=';')
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter='|')
 
                 # Si el archivo está vacío, escribe la cabecera
                 if csvfile.tell() == 0:
