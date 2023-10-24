@@ -14,7 +14,9 @@ class SVMClassifier:
         self.vectorizer = TfidfVectorizer()
 
     def load_dataset(self):
-        return pd.read_csv(self.file_path, delimiter='|')
+        dataset =  pd.read_csv(self.file_path, delimiter='|')
+        dataset = dataset.dropna()
+        return dataset
 
     def preprocess_data(self):
         x = self.dataset['text']

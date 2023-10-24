@@ -8,7 +8,7 @@ import logging
 
 
 class Scraper:
-    def __init__(self, output_file, security_url, technology_url, sports_url, food_url, counts=10):
+    def __init__(self, output_file, security_url, technology_url, sports_url, food_url, counts=100):
         """
         constructor de la clase Scraper con las URLs de los sitios a trabajar.
 
