@@ -10,7 +10,7 @@ food_url = 'https://www.recetasnestle.com.mx/sitemap.xml'
 scraper = Scraper(output_file, security_url, technology_url, sports_url, food_url)
 scraper.run_scrapers()
 
-svm_classifier = SVMClassifier(output_file, kernel='linear', C=1.0)
+svm_classifier = SVMClassifier(output_file, kernel='linear', c=1.0)
 svm_classifier.train()
 
 accuracy = svm_classifier.evaluate()
