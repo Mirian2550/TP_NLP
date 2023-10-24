@@ -8,6 +8,17 @@ import logging
 
 class Scraper:
     def __init__(self, output_file, security_url, technology_url, sports_url, food_url, counts=10):
+        """
+        constructor de la clase Scraper con las URLs de los sitios a trabajar.
+
+        Args:
+            output_file (str): Nombre del archivo CSV de salida.
+            security_url (str): URL de noticias de seguridad .xml.
+            technology_url (str): URL de noticias de tecnología.
+            sports_url (str): URL de noticias de deportes.
+            food_url (str): URL de noticias de comida .
+            counts (int): Número de noticias a raspar.
+        """
         self.security_url = security_url
         self.technology_url = technology_url
         self.sports_url = sports_url
@@ -50,9 +61,20 @@ class Scraper:
         logging.basicConfig(filename='scraper.log', level=logging.INFO, format='%(asctime)s [%(levelname)s]: %(message)s')
 
     def get_random_user_agent(self):
+        """
+            Obtiene un User-Agent aleatorio de la lista de User-Agents.
+            Returns:
+                str: User-Agent aleatorio.
+        """
         return random.choice(self.user_agents)
 
     def write_to_csv(self, data):
+        """
+        Escribe datos en el archivo CSV de salida.
+
+        Args:
+            data (dict): Datos a escribir en el CSV (título, URL, texto).
+        """
         try:
             with open(self.output_file, 'a', newline='', encoding='utf-8') as csvfile:
                 fieldnames = ['title', 'url', 'text']  # Estructura del CSV: título, URL, texto
@@ -73,13 +95,62 @@ class Scraper:
             logging.error(f"Error al escribir en el archivo CSV: {e}")
 
     def scrape_security_news(self):
+        """
+        scrapper noticias de seguridad y las escribe en el archivo CSV
+        """
         try:
             headers = {'User-Agent': self.get_random_user_agent()}
             response = requests.get(self.security_url, headers=headers)
-            pass
-        except Exception as e:
-            logging.error(f"Error al obtener noticias de seguridad: {e}")
+            sub_sitemap = []
+            if response.status_code == 200:
+                root = ET.fromstring(response.text)
+                locs = root.findall(".//{http://www.sitemaps.org/schemas/sitemap/0.9}loc")
+                for loc in locs:
+                    sub_sitemap.append(loc.text)
+                    break
+                url_links = []
+                for site_map in sub_sitemap:
+                    headers = {'User-Agent': self.get_random_user_agent()}
+                    response_sitemap = requests.get(site_map, headers=headers)
+                    if response_sitemap.status_code == 200:
+                        root_map = ET.fromstring(response_sitemap.text)
+                        locs = root_map.findall(".//{http://www.sitemaps.org/schemas/sitemap/0.9}loc")
+                        for loc in locs:
+                            url_links.append(loc.text)
 
+                for link in url_links[:10]:
+                    headers = {'User-Agent': self.get_random_user_agent()}
+                    response_url = requests.get(link, headers=headers)
+                    if response_url.status_code == 200:
+                        soup = BeautifulSoup(response_url.text, 'html.parser')
+                        title = soup.find('h2', class_='post-title entry-title')
+                        if title:
+                            title = title.text.replace('\n', '')
+                        else:
+                            title = "No title found"
+                        div_with_classes = soup.find('div', class_='post-body entry-content')
+                        if div_with_classes:
+                            paragraphs = div_with_classes.find_all('p')
+                            text = ''
+                            for paragraph in paragraphs:
+                                text += paragraph.text
+                            text = text.replace('\n', '')
+                        else:
+                            text = "No text found"
+                        self.write_to_csv({
+                            'title': title,
+                            'url': link,
+                            'text': text
+                        })
+
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error de solicitud HTTP: {e}")
+
+        except ET.ParseError as e:
+            logging.error(f"Error al analizar XML: {e}")
+
+        except AttributeError as e:
+            logging.error(f"Error de atributo: {e}")
     def scrape_technology_news(self):
         try:
             headers = {'User-Agent': self.get_random_user_agent()}
@@ -139,7 +210,7 @@ class Scraper:
     def run_scrapers(self):
         # Crear hilos para ejecutar cada scraper
         threads = []
-        #threads.append(threading.Thread(target=self.scrape_security_news))
+        threads.append(threading.Thread(target=self.scrape_security_news))
         #threads.append(threading.Thread(target=self.scrape_technology_news))
         #threads.append(threading.Thread(target=self.scrape_sports_news))
         threads.append(threading.Thread(target=self.scrape_food_news))
