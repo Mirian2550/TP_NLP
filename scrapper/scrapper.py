@@ -79,7 +79,7 @@ class Scraper:
         """
         try:
             with open(self.output_file, 'a', newline='', encoding='utf-8') as csvfile:
-                fieldnames = ['title', 'url', 'text']  # Estructura del CSV: título, URL, texto
+                fieldnames = ['title', 'url', 'text','category']  # Estructura del CSV: título, URL, texto
                 # Configurar el delimitador y el encoding
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter=';')
 
@@ -91,7 +91,8 @@ class Scraper:
                 writer.writerow({
                     'title': data['title'],
                     'url': data['url'],
-                    'text': data['text']
+                    'text': data['text'],
+                    'category': data['category']
                 })
         except Exception as e:
             logging.error(f"Error al escribir en el archivo CSV: {e}")
@@ -142,7 +143,8 @@ class Scraper:
                         self.write_to_csv({
                             'title': title,
                             'url': link,
-                            'text': text
+                            'text': text,
+                            'category': 'Seguridad informatica'
                         })
 
         except requests.exceptions.RequestException as e:
@@ -201,7 +203,8 @@ class Scraper:
                             self.write_to_csv({
                                 'title': titulo,
                                 'url': url,
-                                'text': texto
+                                'text': texto,
+                                'category': 'recetas'
                             })
                         else:
                             logging.warning(f"Div with classes not found in {url}")
