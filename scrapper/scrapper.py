@@ -163,15 +163,42 @@ class Scraper:
             pass
         except Exception as e:
             logging.error(f"Error al obtener noticias de tecnología: {e}")
-
+  
     def scrape_sports_news(self):
         try:
             headers = {'User-Agent': self.get_random_user_agent()}
             response = requests.get(self.sports_url, headers=headers)
-            pass
-        except Exception as e:
-            logging.error(f"Error al obtener noticias de deportes: {e}")
+            if response.status_code == 200:
+                root = ET.fromstring(response.content)
 
+                url_list = []
+                for url_elem in root.findall(".//{http://www.sitemaps.org/schemas/sitemap/0.9}url"):
+                    loc_elem = url_elem.find("{http://www.sitemaps.org/schemas/sitemap/0.9}loc")
+                    if loc_elem is not None:
+                        url = loc_elem.text
+                        url_list.append(url)
+
+                for url in url_list[1:self.counts]:  # Omitir la primera URL
+                    headers = {'User-Agent': self.get_random_user_agent()}
+                    response_url = requests.get(url, headers=headers)
+                    if response_url.status_code == 200:
+                        soup = BeautifulSoup(response_url.text, 'html.parser')
+
+                        # Modificar aquí para extraer el título y texto del nuevo formato XML
+                        title = soup.find('n:title').text
+                        texto = soup.find('n:news').text  # Supongo que el texto deseado está en el campo 'n:title'
+
+                        self.write_to_csv({
+                            'title': title,
+                            'url': url,
+                            'text': texto,
+                            'category': 'deportes'
+                        })
+                    else:
+                        logging.error(f"Failed to retrieve {url}. Status code: {response_url.status_code}")
+        except Exception as e:
+            logging.error(f"Error en la función de scraping de noticias de deportes: {e}")
+        
     def scrape_food_news(self):
         try:
             headers = {'User-Agent': self.get_random_user_agent()}
@@ -228,3 +255,5 @@ class Scraper:
         # Esperar a que todos los hilos terminen
         for thread in threads:
             thread.join()
+
+    

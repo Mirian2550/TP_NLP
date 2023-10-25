@@ -4,7 +4,7 @@ from scrapper.scrapper import Scraper
 output_file = 'data/dataset.csv'
 security_url = 'https://blog.segu-info.com.ar/sitemap.xml'
 technology_url = 'url2'
-sports_url = 'url3'
+sports_url = 'https://www.espn.com.ar/googlenewssitemap'
 food_url = 'https://www.recetasnestle.com.mx/sitemap.xml'
 
 scraper = Scraper(output_file, security_url, technology_url, sports_url, food_url)
@@ -43,7 +43,18 @@ noticia_2 = 'Preparación: ' \
             'reservando 4 mitades de duraznos en almíbar para decorar la torta posteriormente. '
 
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_2])
+prediction = svm_classifier.model.predict(noticia_vectorized)
+predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
+print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
 
+noticia_3 = 'Sudáfrica es finalista del Mundial de Rugby e Inglaterra jugará contra Los Pumas por el tercer puesto' \
+            'En un final para el infarto, el seleccionado africano dio vuelta el partido y venció 16-15' \
+            'a los británicos por las semifinales. Ahora jugarán por el título contra Nueva Zelanda, que el viernes eliminó a Argentina' \
+            'El campeón defensor Sudáfrica derrotó este sábado en forma ajustada a Inglaterra por 16-15 en la segunda semifinal' \
+            'y se clasificó para la definición del título del Mundial de Rugby Francia 2023, instancia en la que' \
+            'dirimirá la corona frente a Nueva Zelanda, que el viernes dejó en el camino a Argentina.'
+
+noticia_vectorized = svm_classifier.vectorizer.transform([noticia_3])
 prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
 print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
