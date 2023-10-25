@@ -3,7 +3,7 @@ from scrapper.scrapper import Scraper
 
 output_file = 'data/dataset.csv'
 security_url = 'https://blog.segu-info.com.ar/sitemap.xml'
-technology_url = 'url2'
+technology_url = 'https://www.xataka.com/club/sitemap.xml'
 sports_url = 'https://www.espn.com.ar/googlenewssitemap'
 food_url = 'https://www.recetasnestle.com.mx/sitemap.xml'
 
