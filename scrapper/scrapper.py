@@ -178,22 +178,29 @@ class Scraper:
                         url = loc_elem.text
                         url_list.append(url)
 
-                for url in url_list[1:self.counts]:  # Omitir la primera URL
+                for url in url_list[1:self.counts]: 
                     headers = {'User-Agent': self.get_random_user_agent()}
                     response_url = requests.get(url, headers=headers)
                     if response_url.status_code == 200:
                         soup = BeautifulSoup(response_url.text, 'html.parser')
 
-                        # Modificar aquí para extraer el título y texto del nuevo formato XML
-                        title = soup.find('n:title').text
-                        texto = soup.find('n:news').text  # Supongo que el texto deseado está en el campo 'n:title'
-
-                        self.write_to_csv({
-                            'title': title,
-                            'url': url,
-                            'text': texto,
-                            'category': 'deportes'
-                        })
+                        div_with_classes = soup.find('div', class_='article-body')
+                        if div_with_classes:
+                            paragraphs = div_with_classes.find_all('p')
+                            titulo = soup.h1.text
+                            titulo = titulo.replace('\n', '')
+                            texto = ''
+                            for paragraph in paragraphs:
+                                texto += paragraph.text
+                            texto = texto.replace('\n', '')
+                            self.write_to_csv({
+                                'title': titulo,
+                                'url': url,
+                                'text': texto,
+                                'category': 'deportes'
+                            })
+                        else:
+                            logging.warning(f"Div with classes not found in {url}")
                     else:
                         logging.error(f"Failed to retrieve {url}. Status code: {response_url.status_code}")
         except Exception as e:
@@ -245,7 +252,7 @@ class Scraper:
         threads = []
         threads.append(threading.Thread(target=self.scrape_security_news))
         # threads.append(threading.Thread(target=self.scrape_technology_news))
-        # threads.append(threading.Thread(target=self.scrape_sports_news))
+        threads.append(threading.Thread(target=self.scrape_sports_news))
         threads.append(threading.Thread(target=self.scrape_food_news))
 
         # Iniciar los hilos
