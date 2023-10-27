@@ -7,3 +7,4 @@ matplotlib
 nltk
 wordcloud
 unidecode
+spacy
