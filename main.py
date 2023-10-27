@@ -1,5 +1,11 @@
 from clasificador.clasificador import SVMClassifier
 from scrapper.scrapper import Scraper
+import nltk
+import pandas as pd
+from clasificador.nube_palabras import generar_nube_palabras
+
+nltk.download('stopwords')
+
 
 output_file = 'data/dataset.csv'
 security_url = 'https://blog.segu-info.com.ar/sitemap.xml'
@@ -16,7 +22,7 @@ svm_classifier.train()
 accuracy = svm_classifier.evaluate()
 print(f'Precisión del modelo SVM: {accuracy}')
 
-noticia = ' El malware bancario brasileño conocido como "Grandoreiro" o "Mekotio" ha cruzado el charco, con una ' \
+noticia_1 = ' El malware bancario brasileño conocido como "Grandoreiro" o "Mekotio" ha cruzado el charco, con una ' \
              'nueva campaña de TA2725 dirigida a clientes de España, además de Brasil, Argentina y México. ' \
              'La actividad de la Dark Web en América Latina ha aumentado en los últimos dos años y se concentra en ' \
              'gran medida en dos países. Según el reporte de SOCRadar "Brazil Threat Landscape", 360 mil millones de ' \
@@ -27,7 +33,7 @@ noticia = ' El malware bancario brasileño conocido como "Grandoreiro" o "Mekoti
              'En América Latina, las detecciones de los sistemas de ESET muestran que Argentina (52%) es el país con ' \
              'más actividad de este Mekotio, seguido por México (17%), Perú (12%), Chile (10%) y Brasil (3%). '
 
-noticia_vectorized = svm_classifier.vectorizer.transform([noticia])
+noticia_vectorized = svm_classifier.vectorizer.transform([noticia_1])
 prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
 print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
@@ -58,3 +64,25 @@ noticia_vectorized = svm_classifier.vectorizer.transform([noticia_3])
 prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
 print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
+
+noticia_4 = 'En un paso significativo para ampliar el acceso a la literatura clásica, Project Gutenberg ' \
+            'se asoció con el Instituto de Tecnología de Massachusetts (MIT) y Microsoft para crear una ' \
+            'amplia colección de audiolibros utilizando inteligencia artificial (IA). El proyecto ofrece ' \
+            'miles de audiolibros gratuitos en importantes plataformas como Spotify, Apple y Google Podcasts.' \
+            'El proyecto aprovecha los nuevos avances en la síntesis de voz neural con características ' \
+            'humanas para dar vida a miles de libros queridos en un nuevo formato de audio accesible, e ' \
+            'incluso puede leer libros en la voz del usuario con solo 5 segundos de audio.' \
+            'Esta iniciativa, liderada por Mark Hamilton (MIT) y Brendan Walsh (Microsoft), junto con el ' \
+            'profesor supervisor William T. Freeman (MIT), busca democratizar el acceso a la literatura ' \
+            'para incluir a personas con discapacidades visuales, aprendices de idiomas, niños y aquellos ' \
+            'que simplemente prefieren escuchar sus libros.'
+
+noticia_vectorized = svm_classifier.vectorizer.transform([noticia_4])
+prediction = svm_classifier.model.predict(noticia_vectorized)
+predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
+print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
+
+generar_nube_palabras('Seguridad informatica')
+generar_nube_palabras('tecnologia')
+generar_nube_palabras('deportes')
+generar_nube_palabras('recetas')
