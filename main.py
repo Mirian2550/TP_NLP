@@ -3,7 +3,7 @@ from scrapper.scrapper import Scraper
 import nltk
 import pandas as pd
 from clasificador.nube_palabras import generar_nube_palabras
-
+nltk.download('punkt')
 nltk.download('stopwords')
 
 
