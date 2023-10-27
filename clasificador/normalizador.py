@@ -18,7 +18,9 @@ def procesar_texto(categoria):
     texto = unidecode(texto)
     palabras = word_tokenize(texto)
     stop_words = set(stopwords.words('spanish'))
-    palabras_vacias_espanol = ["estan","aun","tambien","vez","todos","todas","asi","uno","dos","gran","aqui","min","mas", "de", "la", "que", "el", "en", "y", "a", "los", "del", "se", "las", "por", "un", "para",
+    palabras_vacias_espanol = ["estan", "aun", "tambien", "vez", "todos", "todas", "asi", "uno", "dos", "gran", "aqui",
+                               "min", "mas", "de", "la", "que", "el", "en", "y", "a", "los", "del", "se", "las", "por",
+                               "un", "para",
                                "con", "no", "una", "su", "al", "lo", "como", "más", "pero", "sus", "le", "ya", "o",
                                "fue", "este", "ha", "sí", "porque", "esta", "son", "entre", "está", "cuando", "muy",
                                "sin", "sobre", "ser", "también", "me", "hasta", "hay", "donde", "quien", "desde",
@@ -98,4 +100,4 @@ def procesar_texto(categoria):
                                "tuviesen", "teniendo", "tenido", "tenida", "tenidos", "tenidas", "tened"]
     stop_words.update(palabras_vacias_espanol)
     palabras = [palabra for palabra in palabras if len(palabra) >= 3 and palabra not in stop_words]
-    return (palabras, categoria)
+    return palabras, categoria
