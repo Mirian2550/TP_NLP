@@ -79,20 +79,20 @@ def get_random_user_agent():
 
 
 class Scraper:
-    def __init__(self, output_file, security_url, technology_url, sports_url, food_url, counts=50):
+    def __init__(self, output_file, security_url, cars_url, sports_url, food_url, counts=500):
         """
         constructor de la clase Scraper con las URLs de los sitios a trabajar.
 
         Args:
             output_file (str): Nombre del archivo CSV de salida.
             security_url (str): URL de noticias de seguridad .xml.
-            technology_url (str): URL de noticias de tecnología.
+            cars_url (str): URL de noticias de autos.
             sports_url (str): URL de noticias de deportes.
             food_url (str): URL de noticias de comida .
             counts (int): Número de noticias a raspar.
         """
         self.security_url = security_url
-        self.technology_url = technology_url
+        self.cars_url = cars_url
         self.sports_url = sports_url
         self.food_url = food_url
         self.output_file = output_file
@@ -173,7 +173,7 @@ class Scraper:
                             'title': title,
                             'url': link,
                             'text': text,
-                            'category': 'Seguridad informatica'
+                            'category': 'Seguridad Informatica'
                         })
 
         except requests.exceptions.RequestException as e:
@@ -185,10 +185,10 @@ class Scraper:
         except AttributeError as e:
             logging.error(f"Error de atributo: {e}")
 
-    def scrape_technology_news(self):
+    def scrape_cars_news(self):
         try:
             headers = {'User-Agent': self.user_agent}
-            response = requests.get(self.technology_url, headers=headers)
+            response = requests.get(self.cars_url, headers=headers)
             if response.status_code == 200:
                 root = ET.fromstring(response.content)
                 url_list = []
@@ -204,17 +204,17 @@ class Scraper:
                         soup = BeautifulSoup(response_url.text, 'html.parser')
                         title = soup.h1.text
                         title = title.replace('\n', '').lstrip()
-                        div_articule = soup.find('div', class_='article-content')
+                        div_articule = soup.find('div', class_='prueba-content')
                         text = div_articule.text.replace('\n', '').lstrip()
                         self.write_to_csv({
                             'title': title,
                             'url': url,
                             'text': text,
-                            'category': 'tecnologia'
+                            'category': 'Autos'
                         })
 
         except Exception as e:
-            logging.error(f"Error al obtener noticias de tecnología: {e}")
+            logging.error(f"Error al obtener noticias de autos: {e}")
 
     def scrape_sports_news(self):
         try:
@@ -249,7 +249,7 @@ class Scraper:
                                 'title': titulo,
                                 'url': url,
                                 'text': texto,
-                                'category': 'deportes'
+                                'category': 'Deportes'
                             })
                         else:
                             logging.warning(f"Div with classes not found in {url}")
@@ -290,7 +290,7 @@ class Scraper:
                                 'title': titulo,
                                 'url': url,
                                 'text': texto,
-                                'category': 'recetas'
+                                'category': 'Recetas'
                             })
                         else:
                             logging.warning(f"Div with classes not found in {url}")
@@ -301,7 +301,7 @@ class Scraper:
 
     def run_scrapers(self):
         threads = [threading.Thread(target=self.scrape_security_news),
-                   threading.Thread(target=self.scrape_technology_news),
+                   threading.Thread(target=self.scrape_cars_news),
                    threading.Thread(target=self.scrape_sports_news),
                    threading.Thread(target=self.scrape_food_news)]
 

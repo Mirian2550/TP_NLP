@@ -3,17 +3,18 @@ from scrapper.scrapper import Scraper
 import nltk
 import pandas as pd
 from clasificador.nube_palabras import generar_nube_palabras
+
 nltk.download('punkt')
 nltk.download('stopwords')
 
 
 output_file = 'data/dataset.csv'
 security_url = 'https://blog.segu-info.com.ar/sitemap.xml'
-technology_url = 'https://www.xataka.com/club/sitemap.xml'
+cars_url = 'https://autotest.com.ar/pruebas-sitemap1.xml'
 sports_url = 'https://www.espn.com.ar/googlenewssitemap'
 food_url = 'https://www.recetasnestle.com.mx/sitemap.xml'
 
-scraper = Scraper(output_file, security_url, technology_url, sports_url, food_url)
+scraper = Scraper(output_file, security_url, cars_url, sports_url, food_url)
 scraper.run_scrapers()
 
 svm_classifier = SVMClassifier(output_file, kernel='linear', c=1.0)
@@ -65,24 +66,18 @@ prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
 print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
 
-noticia_4 = 'En un paso significativo para ampliar el acceso a la literatura clásica, Project Gutenberg ' \
-            'se asoció con el Instituto de Tecnología de Massachusetts (MIT) y Microsoft para crear una ' \
-            'amplia colección de audiolibros utilizando inteligencia artificial (IA). El proyecto ofrece ' \
-            'miles de audiolibros gratuitos en importantes plataformas como Spotify, Apple y Google Podcasts.' \
-            'El proyecto aprovecha los nuevos avances en la síntesis de voz neural con características ' \
-            'humanas para dar vida a miles de libros queridos en un nuevo formato de audio accesible, e ' \
-            'incluso puede leer libros en la voz del usuario con solo 5 segundos de audio.' \
-            'Esta iniciativa, liderada por Mark Hamilton (MIT) y Brendan Walsh (Microsoft), junto con el ' \
-            'profesor supervisor William T. Freeman (MIT), busca democratizar el acceso a la literatura ' \
-            'para incluir a personas con discapacidades visuales, aprendices de idiomas, niños y aquellos ' \
-            'que simplemente prefieren escuchar sus libros.'
+noticia_4 = 'Polo "MSI": esta versión se renueva con un diseño más sofisticado y novedoso. Además del motor ' \
+            'naftero 1.6 MSI de 110CV, el coche ofrece una serie de características destacadas, como faros ' \
+            '"ECO LED", un tablero digital de 8" llamado "VW Digital Cockpit", radio "Composition Touch" de ' \
+            '6.5" y App Connect. También incluye sensores de estacionamiento traseros, llave con cierre ' \
+            'centralizado y comando a distancia, alarma volumétrica y otros elementos de confort.'
 
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_4])
 prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
 print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
 
-generar_nube_palabras('Seguridad informatica')
-generar_nube_palabras('tecnologia')
-generar_nube_palabras('deportes')
-generar_nube_palabras('recetas')
+generar_nube_palabras('Seguridad Informatica')
+generar_nube_palabras('Autos')
+generar_nube_palabras('Deportes')
+generar_nube_palabras('Recetas')
