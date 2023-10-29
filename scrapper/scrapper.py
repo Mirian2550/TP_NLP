@@ -94,7 +94,7 @@ class Scraper:
             counts (int): Número de noticias a raspar.
         """
         self.security_url = security_url
-        self.cars_url = baby_url
+        self.baby_url = baby_url
         self.sports_url = sports_url
         self.food_url = food_url
         self.output_file = output_file
@@ -113,7 +113,7 @@ class Scraper:
         """
         try:
             with open(self.output_file, 'a', newline='', encoding='utf-8') as csvfile:
-                fieldnames = ['title', 'url', 'text', 'category']  # Estructura del CSV: título, URL, texto
+                fieldnames = ['title', 'url', 'text', 'category']
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter='|')
 
                 if csvfile.tell() == 0:
@@ -200,7 +200,7 @@ class Scraper:
     def scrape_baby_news(self):
         try:
             headers = {'User-Agent': self.user_agent}
-            response = requests.get(self.cars_url, headers=headers, stream=True)
+            response = requests.get(self.baby_url, headers=headers, stream=True)
             if response.status_code == 200:
                 root = ET.fromstring(response.content)
                 url_list = []
@@ -230,7 +230,7 @@ class Scraper:
                         })
 
         except Exception as e:
-            logging.error(f"Error al obtener noticias de autos: {e}")
+            logging.error(f"Error al obtener noticias de bebes: {e}")
 
     def scrape_sports_news(self):
         try:
