@@ -9,11 +9,11 @@ nltk.download('stopwords')
 
 output_file = 'data/dataset.csv'
 security_url = 'https://blog.segu-info.com.ar/sitemap.xml'
-travel_url = 'https://blogdelbebe.com/post-sitemap.xml'
+baby_url = 'https://blogdelbebe.com/post-sitemap.xml'
 sports_url = 'https://www.espn.com.ar/googlenewssitemap'
 food_url = 'https://www.recetasnestle.com.mx/sitemap.xml'
 
-scraper = Scraper(output_file, security_url, travel_url, sports_url, food_url)
+scraper = Scraper(output_file, security_url, baby_url, sports_url, food_url)
 scraper.run_scrapers()
 
 svm_classifier = SVMClassifier(output_file, kernel='sigmoid', c=1.0)
@@ -78,6 +78,6 @@ predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
 print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
 
 generar_nube_palabras('Seguridad Informatica')
-generar_nube_palabras('Viajes')
+generar_nube_palabras('Bebes')
 generar_nube_palabras('Deportes')
 generar_nube_palabras('Recetas')

@@ -81,20 +81,20 @@ def get_random_user_agent():
 
 
 class Scraper:
-    def __init__(self, output_file, security_url, cars_url, sports_url, food_url, counts=30):
+    def __init__(self, output_file, security_url, baby_url, sports_url, food_url, counts=30):
         """
         constructor de la clase Scraper con las URLs de los sitios a trabajar.
 
         Args:
             output_file (str): Nombre del archivo CSV de salida.
             security_url (str): URL de noticias de seguridad .xml.
-            cars_url (str): URL de noticias de autos.
+            baby_url (str): URL de noticias de bendis.
             sports_url (str): URL de noticias de deportes.
             food_url (str): URL de noticias de comida .
             counts (int): Número de noticias a raspar.
         """
         self.security_url = security_url
-        self.cars_url = cars_url
+        self.cars_url = baby_url
         self.sports_url = sports_url
         self.food_url = food_url
         self.output_file = output_file
@@ -197,7 +197,7 @@ class Scraper:
         except AttributeError as e:
             logging.error(f"Error de atributo: {e}")
 
-    def scrape_travel_news(self):
+    def scrape_baby_news(self):
         try:
             headers = {'User-Agent': self.user_agent}
             response = requests.get(self.cars_url, headers=headers, stream=True)
@@ -226,7 +226,7 @@ class Scraper:
                             'title': title,
                             'url': url,
                             'text': text,
-                            'category': 'Viajes'
+                            'category': 'Bebes'
                         })
 
         except Exception as e:
@@ -317,7 +317,7 @@ class Scraper:
 
     def run_scrapers(self):
         threads = [threading.Thread(target=self.scrape_security_news),
-                   threading.Thread(target=self.scrape_travel_news),
+                   threading.Thread(target=self.scrape_baby_news),
                    threading.Thread(target=self.scrape_sports_news),
                    threading.Thread(target=self.scrape_food_news)]
 
