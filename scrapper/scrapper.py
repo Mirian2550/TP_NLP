@@ -162,7 +162,7 @@ class Scraper:
                             title = "No title found"
                         div_with_classes = soup.find('div', class_='post-body entry-content')
                         if div_with_classes:
-                            paragraphs = div_with_classes.text
+                            paragraphs = div_with_classes.find_all('p')
                             text = ''
                             for paragraph in paragraphs:
                                 text += paragraph.text
