@@ -54,24 +54,14 @@ prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
 print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
 
-noticia_3 = 'Sudáfrica es finalista del Mundial de Rugby e Inglaterra jugará contra Los Pumas por el tercer puesto' \
-            'En un final para el infarto, el seleccionado africano dio vuelta el partido y venció 16-15' \
-            'a los británicos por las semifinales. Ahora jugarán por el título contra Nueva Zelanda, que el viernes eliminó a Argentina' \
-            'El campeón defensor Sudáfrica derrotó este sábado en forma ajustada a Inglaterra por 16-15 en la segunda semifinal' \
-            'y se clasificó para la definición del título del Mundial de Rugby Francia 2023, instancia en la que' \
-            'dirimirá la corona frente a Nueva Zelanda, que el viernes dejó en el camino a Argentina.'
+noticia_3 = 'Las dos incógnitas era el cómo y cuánto. Quién, era una pregunta que tenía una respuesta antes de comenzar el partido. Las chances de que Brasil pudiera perder puntos con Bolivia en Belem eran casi nulas. Es fútbol, por supuesto, pero las diferencias entre ambos equipos son demasiado grandes. Ni siquiera el penal que Viscarra le atajó a Neymar, a los 15’ y cuando el partido todavía estaba 0-0, pudo ser envión para la débil selección que ahora dirige Gustavo Costas. Había que dilucidar, entonces, cómo iba a ser el triunfo loca'
 
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_3])
 prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
 print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
 
-noticia_4 = 'Polo "MSI": esta versión se renueva con un diseño más sofisticado y novedoso. Además del motor ' \
-            'naftero 1.6 MSI de 110CV, el coche ofrece una serie de características destacadas, como faros ' \
-            '"ECO LED", un tablero digital de 8" llamado "VW Digital Cockpit", radio "Composition Touch" de ' \
-            '6.5" y App Connect. También incluye sensores de estacionamiento traseros, llave con cierre ' \
-            'centralizado y comando a distancia, alarma volumétrica y otros elementos de confort.'
-
+noticia_4 = 'El Chevrolet Camaro es un automóvil deportivo de dos puertas, con motor delantero montado longitudinalmente y de tracción trasera, producido por el fabricante estadounidense Chevrolet, división de General Motors (GM) desde 1966.1​ Compartía su plataforma y la mayoría de sus componentes con el Pontiac Firebird, también introducido en 1967.Se clasifica como un pony car y en algunas versiones también como un muscle car. Surgió como la respuesta de GM al creador del segmento de los "pony cars": el Ford Mustang. '
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_4])
 prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)

@@ -81,7 +81,7 @@ def get_random_user_agent():
 
 
 class Scraper:
-    def __init__(self, output_file, security_url, cars_url, sports_url, food_url, counts=30):
+    def __init__(self, output_file, security_url, cars_url, sports_url, food_url, counts=1):
         """
         constructor de la clase Scraper con las URLs de los sitios a trabajar.
 
@@ -134,7 +134,7 @@ class Scraper:
         """
         try:
             headers = {'User-Agent': self.user_agent}
-            response = requests.get(self.security_url, headers=headers)
+            response = requests.get(self.security_url, headers=headers, stream=True)
             sub_sitemap = []
             if response.status_code == 200:
                 root = ET.fromstring(response.text)
@@ -145,7 +145,7 @@ class Scraper:
                 url_links = []
                 for site_map in sub_sitemap:
                     headers = {'User-Agent': self.user_agent}
-                    response_sitemap = requests.get(site_map, headers=headers)
+                    response_sitemap = requests.get(site_map, headers=headers, stream=True)
                     if response_sitemap.status_code == 200:
                         root_map = ET.fromstring(response_sitemap.text)
                         locs = root_map.findall(".//{http://www.sitemaps.org/schemas/sitemap/0.9}loc")
@@ -154,7 +154,7 @@ class Scraper:
 
                 for link in url_links[1:self.counts]:
                     headers = {'User-Agent': self.user_agent}
-                    response_url = requests.get(link, headers=headers)
+                    response_url = requests.get(link, headers=headers, stream=True)
                     if response_url.status_code == 200:
                         soup = BeautifulSoup(response_url.text, 'html.parser')
                         title = soup.find('h2', class_='post-title entry-title')
@@ -199,7 +199,7 @@ class Scraper:
     def scrape_cars_news(self):
         try:
             headers = {'User-Agent': self.user_agent}
-            response = requests.get(self.cars_url, headers=headers)
+            response = requests.get(self.cars_url, headers=headers, stream=True)
             if response.status_code == 200:
                 root = ET.fromstring(response.content)
                 url_list = []
@@ -210,7 +210,7 @@ class Scraper:
                         url_list.append(url)
                 for url in url_list[1:self.counts]:
                     headers = {'User-Agent': self.user_agent}
-                    response_url = requests.get(url, headers=headers)
+                    response_url = requests.get(url, headers=headers, stream=True)
                     if response_url.status_code == 200:
                         soup = BeautifulSoup(response_url.text, 'html.parser')
                         title = soup.h1.text
@@ -230,7 +230,7 @@ class Scraper:
     def scrape_sports_news(self):
         try:
             headers = {'User-Agent': self.user_agent}
-            response = requests.get(self.sports_url, headers=headers)
+            response = requests.get(self.sports_url, headers=headers, stream=True)
             if response.status_code == 200:
                 root = ET.fromstring(response.content)
 
@@ -243,7 +243,7 @@ class Scraper:
 
                 for url in url_list[1:self.counts]:
                     headers = {'User-Agent': self.user_agent}
-                    response_url = requests.get(url, headers=headers)
+                    response_url = requests.get(url, headers=headers, stream=True)
                     if response_url.status_code == 200:
                         soup = BeautifulSoup(response_url.text, 'html.parser')
 
@@ -272,7 +272,7 @@ class Scraper:
     def scrape_food_news(self):
         try:
             headers = {'User-Agent': self.user_agent}
-            response = requests.get(self.food_url, headers=headers)
+            response = requests.get(self.food_url, headers=headers, stream=True)
             if response.status_code == 200:
                 root = ET.fromstring(response.content)
 
@@ -284,7 +284,7 @@ class Scraper:
 
                 for url in url_list[1:self.counts]:
                     headers = {'User-Agent': self.user_agent}
-                    response_url = requests.get(url, headers=headers)
+                    response_url = requests.get(url, headers=headers, stream=True)
                     if response_url.status_code == 200:
                         soup = BeautifulSoup(response_url.text, 'html.parser')
 
