@@ -78,7 +78,7 @@ def handle_text(message):
                     break
         elif message.text == 'Seguridad Informática':
             bot.reply_to(message, "¡Has seleccionado la categoría de Seguridad Informática!")
-            category_summary_generator = summarize_category('Seguridad informatica')
+            category_summary_generator = summarize_category('Seguridad Informatica')
             initial_summary = next(category_summary_generator)  # Realizar una carga inicial
             bot.send_message(message.chat.id, initial_summary)
             for i in range(MAX_SUMMARY_FRAGMENTS):
