@@ -81,7 +81,7 @@ def get_random_user_agent():
 
 
 class Scraper:
-    def __init__(self, output_file, security_url, cars_url, sports_url, food_url, counts=1):
+    def __init__(self, output_file, security_url, cars_url, sports_url, food_url, counts=30):
         """
         constructor de la clase Scraper con las URLs de los sitios a trabajar.
 
@@ -119,10 +119,11 @@ class Scraper:
                 if csvfile.tell() == 0:
                     writer.writeheader()
                 text_cleaned = data['text'].strip().replace(',', '').replace('.', '').replace(';', '')
+                text_cleaned = text_cleaned.replace('"', '')
                 writer.writerow({
-                    'title': data['title'],
+                    'title': data['title'].lower(),
                     'url': data['url'],
-                    'text': text_cleaned,
+                    'text': text_cleaned.lower(),
                     'category': data['category']
                 })
         except Exception as e:
@@ -196,7 +197,7 @@ class Scraper:
         except AttributeError as e:
             logging.error(f"Error de atributo: {e}")
 
-    def scrape_cars_news(self):
+    def scrape_travel_news(self):
         try:
             headers = {'User-Agent': self.user_agent}
             response = requests.get(self.cars_url, headers=headers, stream=True)
@@ -215,13 +216,17 @@ class Scraper:
                         soup = BeautifulSoup(response_url.text, 'html.parser')
                         title = soup.h1.text
                         title = title.replace('\n', '').lstrip()
-                        div_articule = soup.find('div', class_='prueba-content')
-                        text = div_articule.text.replace('\n', '').lstrip()
+                        paragraphs = soup.find_all('p')
+                        text = ''
+                        for paragraph in paragraphs:
+                            text += paragraph.text
+                        text = text.replace('\n', '')
+
                         self.write_to_csv({
                             'title': title,
                             'url': url,
                             'text': text,
-                            'category': 'Autos'
+                            'category': 'Viajes'
                         })
 
         except Exception as e:
@@ -312,7 +317,7 @@ class Scraper:
 
     def run_scrapers(self):
         threads = [threading.Thread(target=self.scrape_security_news),
-                   threading.Thread(target=self.scrape_cars_news),
+                   threading.Thread(target=self.scrape_travel_news),
                    threading.Thread(target=self.scrape_sports_news),
                    threading.Thread(target=self.scrape_food_news)]
 

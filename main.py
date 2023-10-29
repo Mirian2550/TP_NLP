@@ -9,11 +9,11 @@ nltk.download('stopwords')
 
 output_file = 'data/dataset.csv'
 security_url = 'https://blog.segu-info.com.ar/sitemap.xml'
-cars_url = 'https://autotest.com.ar/pruebas-sitemap1.xml'
+travel_url = 'https://blogdelbebe.com/post-sitemap.xml'
 sports_url = 'https://www.espn.com.ar/googlenewssitemap'
 food_url = 'https://www.recetasnestle.com.mx/sitemap.xml'
 
-scraper = Scraper(output_file, security_url, cars_url, sports_url, food_url)
+scraper = Scraper(output_file, security_url, travel_url, sports_url, food_url)
 scraper.run_scrapers()
 
 svm_classifier = SVMClassifier(output_file, kernel='sigmoid', c=1.0)
@@ -67,19 +67,17 @@ prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
 print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
 
-noticia_4 = 'El Chevrolet Camaro es un automóvil deportivo de dos puertas, con motor delantero montado ' \
-            'longitudinalmente y de tracción trasera, producido por el fabricante estadounidense Chevrolet, ' \
-            'división de General Motors (GM) desde 1966.1​ Compartía su plataforma y la mayoría de sus componentes ' \
-            'con el Pontiac Firebird, también introducido en 1967.Se clasifica como un pony car y en algunas ' \
-            'versiones ' \
-            'también como un muscle car. Surgió como la respuesta de GM al creador del segmento de los "pony cars": ' \
-            'el Ford Mustang. '
+noticia_4 = 'emelos dicigóticos (llamados popularmente mellizos)' \
+            'Gemelos MellizosEste tipo de gemelos se produce cuando dos óvulos son fecundados por dos espermatozoides. Los espermatozoides pueden ser de dos coitos diferentes y, de hecho, si se diera el caso, incluso de dos padres distintos.Cada óvulo evoluciona por separado con lo que cada embrión tendrá su propio saco amniótico y su propia placenta. Pueden ser del mismo o de diferente sexo y su semejanza física es la misma que se puede dar entre dos hermanos de embarazos distintos. Representa entre el 65% y el 75% de los casos de embarazos gemelares. Son más frecuentes este tipo de gemelos dado que, por un lado, responden a un gen hereditario y, por otro, pueden estar influidos por otros factores como los tratamientos de reproducción asistida, la avanzada edad de la madre o el uso prolongado de pastillas anticonceptivas, entre otros.' \
+            'Gemelos monocigóticos Por una razón cuyo origen médico no ha sido aún identificado, en algunos casos, tras la fecundación del óvulo (durante los siguientes 14 días), este sufre una división, dando lugar a dos huevos idénticos. Es decir que de un solo óvulo fecundado por un solo espermatozoide surgen dos embriones. Por esta razón, los gemelos monocigóticos son del mismo sexo y se parecen físicamente e incluso psíquicamente. Sucede esto en el 25% de los embarazos gemelares.' \
+            'Dependiendo de en qué momento post fecundación se produzca la división del óvulo, se darán procesos diferentes y, por tanto, los gemelos pueden ser de diferente tipo:' \
+            'Tipos de gemelos Gemelos monocigóticos diplacentarios biamnióticos La división del óvulo tuvo lugar a los 3 días de la fecundación. Cada embrión cuenta con su propia placenta y su propio saco amniótico. Como en el caso de los gemelos dicigóticos (mellizos) pero con la diferencia de que estos provienen del mismo óvulo y no de dos óvulos distintos.Suelen darse en un tercio de los casos de embarazos monocigóticos.'
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_4])
 prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
 print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
 
 generar_nube_palabras('Seguridad Informatica')
-generar_nube_palabras('Autos')
+generar_nube_palabras('Viajes')
 generar_nube_palabras('Deportes')
 generar_nube_palabras('Recetas')
