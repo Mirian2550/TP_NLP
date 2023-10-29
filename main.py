@@ -38,16 +38,27 @@ prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
 print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
 
-noticia_2 = 'Preparación: ' \
-            'Colocar la última tapa y decorar cubriendo toda la torta con crema chantilly. Cubrirla con merengues ' \
-            'triturados y gajos de duraznos en almíbar. Dejar la torta chajà en la heladera para que se enfríe y ' \
-            'servir pasada una hora.' \
-            'Cortá el bizcochuelo en 3 capas iguales y humedecerlas con el almíbar.' \
-            'Untar una de las capas con dulce de leche y cubrirlo con trozos de merengues rotos, reservando algunos ' \
-            'merengues para decorar.' \
-            'En otra de las capas untar con crema chantilly y agregar merengues y bastantes duraznos cortados en ' \
-            'cubos, ' \
-            'reservando 4 mitades de duraznos en almíbar para decorar la torta posteriormente. '
+noticia_2 = 'Gemelos dicigóticos (llamados popularmente mellizos)' \
+            'Gemelos MellizosEste tipo de gemelos se produce cuando dos óvulos son fecundados por dos espermatozoides. ' \
+            'Los espermatozoides pueden ser de dos coitos diferentes y, de hecho, si se diera el caso, incluso de dos ' \
+            'padres distintos.Cada óvulo evoluciona por separado con lo que cada embrión tendrá su propio saco amniótico ' \
+            'y su propia placenta. Pueden ser del mismo o de diferente sexo y su semejanza física es la misma que se puede ' \
+            'dar entre dos hermanos de embarazos distintos. Representa entre el 65% y el 75% de los casos de embarazos ' \
+            'gemelares. Son más frecuentes este tipo de gemelos dado que, por un lado, responden a un gen hereditario y, ' \
+            'por otro, pueden estar influidos por otros factores como los tratamientos de reproducción asistida, la avanzada ' \
+            'edad de la madre o el uso prolongado de pastillas anticonceptivas, entre otros.' \
+            'Gemelos monocigóticos Por una razón cuyo origen médico no ha sido aún identificado, en algunos casos, tras la ' \
+            'fecundación del óvulo (durante los siguientes 14 días), este sufre una división, dando lugar a dos huevos ' \
+            'idénticos. Es decir que de un solo óvulo fecundado por un solo espermatozoide surgen dos embriones. Por esta ' \
+            'razón, los gemelos monocigóticos son del mismo sexo y se parecen físicamente e incluso psíquicamente. Sucede ' \
+            'esto en el 25% de los embarazos gemelares.' \
+            'Dependiendo de en qué momento post fecundación se produzca la división del óvulo, se darán procesos diferentes ' \
+            'y, por tanto, los gemelos pueden ser de diferente tipo:' \
+            'Tipos de gemelos Gemelos monocigóticos diplacentarios biamnióticos La división del óvulo tuvo lugar a los 3 ' \
+            'días de la fecundación. Cada embrión cuenta con su propia placenta y su propio saco amniótico. Como en el caso ' \
+            'de los gemelos dicigóticos (mellizos) pero con la diferencia de que estos provienen del mismo óvulo y no de dos ' \
+            'óvulos distintos.Suelen darse en un tercio de los casos de embarazos monocigóticos.'
+            
 
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_2])
 prediction = svm_classifier.model.predict(noticia_vectorized)
@@ -67,11 +78,17 @@ prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
 print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
 
-noticia_4 = 'emelos dicigóticos (llamados popularmente mellizos)' \
-            'Gemelos MellizosEste tipo de gemelos se produce cuando dos óvulos son fecundados por dos espermatozoides. Los espermatozoides pueden ser de dos coitos diferentes y, de hecho, si se diera el caso, incluso de dos padres distintos.Cada óvulo evoluciona por separado con lo que cada embrión tendrá su propio saco amniótico y su propia placenta. Pueden ser del mismo o de diferente sexo y su semejanza física es la misma que se puede dar entre dos hermanos de embarazos distintos. Representa entre el 65% y el 75% de los casos de embarazos gemelares. Son más frecuentes este tipo de gemelos dado que, por un lado, responden a un gen hereditario y, por otro, pueden estar influidos por otros factores como los tratamientos de reproducción asistida, la avanzada edad de la madre o el uso prolongado de pastillas anticonceptivas, entre otros.' \
-            'Gemelos monocigóticos Por una razón cuyo origen médico no ha sido aún identificado, en algunos casos, tras la fecundación del óvulo (durante los siguientes 14 días), este sufre una división, dando lugar a dos huevos idénticos. Es decir que de un solo óvulo fecundado por un solo espermatozoide surgen dos embriones. Por esta razón, los gemelos monocigóticos son del mismo sexo y se parecen físicamente e incluso psíquicamente. Sucede esto en el 25% de los embarazos gemelares.' \
-            'Dependiendo de en qué momento post fecundación se produzca la división del óvulo, se darán procesos diferentes y, por tanto, los gemelos pueden ser de diferente tipo:' \
-            'Tipos de gemelos Gemelos monocigóticos diplacentarios biamnióticos La división del óvulo tuvo lugar a los 3 días de la fecundación. Cada embrión cuenta con su propia placenta y su propio saco amniótico. Como en el caso de los gemelos dicigóticos (mellizos) pero con la diferencia de que estos provienen del mismo óvulo y no de dos óvulos distintos.Suelen darse en un tercio de los casos de embarazos monocigóticos.'
+noticia_4 = 'Preparación: ' \
+            'Colocar la última tapa y decorar cubriendo toda la torta con crema chantilly. Cubrirla con merengues ' \
+            'triturados y gajos de duraznos en almíbar. Dejar la torta chajà en la heladera para que se enfríe y ' \
+            'servir pasada una hora.' \
+            'Cortá el bizcochuelo en 3 capas iguales y humedecerlas con el almíbar.' \
+            'Untar una de las capas con dulce de leche y cubrirlo con trozos de merengues rotos, reservando algunos ' \
+            'merengues para decorar.' \
+            'En otra de las capas untar con crema chantilly y agregar merengues y bastantes duraznos cortados en ' \
+            'cubos, ' \
+            'reservando 4 mitades de duraznos en almíbar para decorar la torta posteriormente. '
+
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_4])
 prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
