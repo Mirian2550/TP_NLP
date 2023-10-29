@@ -1,6 +1,8 @@
 import csv
 import threading
 import random
+import re
+
 import requests
 from bs4 import BeautifulSoup
 import xml.etree.ElementTree as ET
@@ -162,24 +164,20 @@ class Scraper:
                             title = "No title found"
                         div_with_classes = soup.find('div', class_='post-body entry-content')
                         if div_with_classes:
-                            """
-                            paragraphs = div_with_classes.find_all('p')
-                            text = ''
-                            for paragraph in paragraphs:
-                                text += paragraph.text
-                            text = text.replace('\n', '')
-                            """
+
                             paragraphs = div_with_classes.find_all('p')
 
                             filtered_paragraphs = []
                             for paragraph in paragraphs:
-                                if not any(paragraph.find_parents(['div', 'section'])):
+
+                                if not any(paragraph.find_parents(['b', 'a'])):
                                     filtered_paragraphs.append(paragraph)
                             text = ''
                             for paragraph in filtered_paragraphs:
                                 text += paragraph.text
                             text = text.replace('\n', '')
-
+                            text = re.sub(r'[,|\t]', ' ', text)
+                            text = text.replace('\n', '')
                         else:
                             text = "No text found"
                         self.write_to_csv({
