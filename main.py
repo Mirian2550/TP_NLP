@@ -1,7 +1,6 @@
 from clasificador.clasificador import SVMClassifier
 from scrapper.scrapper import Scraper
 import nltk
-import pandas as pd
 from clasificador.nube_palabras import generar_nube_palabras
 
 nltk.download('punkt')
@@ -46,7 +45,8 @@ noticia_2 = 'Preparación: ' \
             'Cortá el bizcochuelo en 3 capas iguales y humedecerlas con el almíbar.' \
             'Untar una de las capas con dulce de leche y cubrirlo con trozos de merengues rotos, reservando algunos ' \
             'merengues para decorar.' \
-            'En otra de las capas untar con crema chantilly y agregar merengues y bastantes duraznos cortados en cubos, ' \
+            'En otra de las capas untar con crema chantilly y agregar merengues y bastantes duraznos cortados en ' \
+            'cubos, ' \
             'reservando 4 mitades de duraznos en almíbar para decorar la torta posteriormente. '
 
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_2])
@@ -54,7 +54,8 @@ prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
 print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
 
-noticia_3 = 'Las dos incógnitas era el cómo y cuánto. Quién, era una pregunta que tenía una respuesta antes de comenzar ' \
+noticia_3 = 'Las dos incógnitas era el cómo y cuánto. Quién, era una pregunta que tenía una respuesta antes de ' \
+            'comenzar ' \
             'el partido. Las chances de que Brasil pudiera perder puntos con Bolivia en Belem eran casi nulas. Es ' \
             'fútbol, por supuesto, pero las diferencias entre ambos equipos son demasiado grandes. Ni siquiera el ' \
             'penal que Viscarra le atajó a Neymar, a los 15’ y cuando el partido todavía estaba 0-0, pudo ser envión ' \
@@ -69,7 +70,8 @@ print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
 noticia_4 = 'El Chevrolet Camaro es un automóvil deportivo de dos puertas, con motor delantero montado ' \
             'longitudinalmente y de tracción trasera, producido por el fabricante estadounidense Chevrolet, ' \
             'división de General Motors (GM) desde 1966.1​ Compartía su plataforma y la mayoría de sus componentes ' \
-            'con el Pontiac Firebird, también introducido en 1967.Se clasifica como un pony car y en algunas versiones ' \
+            'con el Pontiac Firebird, también introducido en 1967.Se clasifica como un pony car y en algunas ' \
+            'versiones ' \
             'también como un muscle car. Surgió como la respuesta de GM al creador del segmento de los "pony cars": ' \
             'el Ford Mustang. '
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_4])
