@@ -4,7 +4,7 @@ import logging
 import spacy
 from TelegramBot.resumen import summarize_category
 
-TOKEN = ''
+TOKEN = '6464021236:AAH1nf0NepSAOAuh5nIJZJC36p-cxqAI7tw'
 MAX_SUMMARY_FRAGMENTS = 8
 logging.basicConfig(filename='bot.log', level=logging.ERROR,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -118,7 +118,7 @@ def handle_info(message):
         bot.send_message(message.chat.id, info_message)
     except Exception as e:
         logger.error("Error en handle_info: %s", str(e))
-        start_bot()  # Reiniciar el bot en caso de un error
+        start_bot()
 
 
 start_bot()
