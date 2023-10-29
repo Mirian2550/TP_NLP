@@ -118,11 +118,11 @@ class Scraper:
 
                 if csvfile.tell() == 0:
                     writer.writeheader()
-
+                text_cleaned = data['text'].strip().replace(',', '').replace('.', '').replace(';', '')
                 writer.writerow({
                     'title': data['title'],
                     'url': data['url'],
-                    'text': data['text'].strip(),
+                    'text': text_cleaned,
                     'category': data['category']
                 })
         except Exception as e:
