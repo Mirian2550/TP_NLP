@@ -14,7 +14,7 @@ class SVMClassifier:
         self.vectorizer = TfidfVectorizer()
 
     def load_dataset(self):
-        dataset =  pd.read_csv(self.file_path, delimiter='|')
+        dataset = pd.read_csv(self.file_path, delimiter='|')
         dataset = dataset.dropna()
         return dataset
 
