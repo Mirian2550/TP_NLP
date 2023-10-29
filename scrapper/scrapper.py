@@ -79,7 +79,7 @@ def get_random_user_agent():
 
 
 class Scraper:
-    def __init__(self, output_file, security_url, cars_url, sports_url, food_url, counts=2):
+    def __init__(self, output_file, security_url, cars_url, sports_url, food_url, counts=30):
         """
         constructor de la clase Scraper con las URLs de los sitios a trabajar.
 
@@ -162,11 +162,24 @@ class Scraper:
                             title = "No title found"
                         div_with_classes = soup.find('div', class_='post-body entry-content')
                         if div_with_classes:
+                            """
                             paragraphs = div_with_classes.find_all('p')
                             text = ''
                             for paragraph in paragraphs:
                                 text += paragraph.text
                             text = text.replace('\n', '')
+                            """
+                            paragraphs = div_with_classes.find_all('p')
+
+                            filtered_paragraphs = []
+                            for paragraph in paragraphs:
+                                if not any(paragraph.find_parents(['div', 'section'])):
+                                    filtered_paragraphs.append(paragraph)
+                            text = ''
+                            for paragraph in filtered_paragraphs:
+                                text += paragraph.text
+                            text = text.replace('\n', '')
+
                         else:
                             text = "No text found"
                         self.write_to_csv({
