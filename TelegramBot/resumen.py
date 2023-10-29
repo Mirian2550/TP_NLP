@@ -42,12 +42,11 @@ spacy.cli.download("es_core_news_sm")
 nlp = spacy.load("es_core_news_sm")
 nlp.max_length = 3000000
 
-def summarize_category(data_file, category, word_count=100):
+def summarize_category( category, word_count=100):
     """
     Summarize news articles from a specific category.
 
     Parameters:
-    - data_file (str): Path to the CSV file containing news data.
     - category (str): The category to filter the news articles.
     - word_count (int): Maximum word count for each summary fragment.
 
@@ -55,7 +54,7 @@ def summarize_category(data_file, category, word_count=100):
     - Generator: A generator that yields summary fragments.
     """
     # Load news data from CSV
-    data = pd.read_csv(data_file, delimiter='|')
+    data = pd.read_csv('../data/dataset.csv', delimiter='|')
 
     # Filter news articles by category
     data_filtrado = data[data['category'] == category]
@@ -86,13 +85,6 @@ def summarize_category(data_file, category, word_count=100):
 
         start = end
 
-categories = ['Recetas', 'Deportes', 'Tecnología', 'Seguridad Informática']
 
-for category in categories:
-    print(f"Resumen de noticias en la categoría: {category}\n")
-    summary_generator = summarize_category(category)
-    
-    for i, fragment in enumerate(summary_generator, start=1):
-        print(f"Fragmento {i}:\n{fragment}\n")
 
 

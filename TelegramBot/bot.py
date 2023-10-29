@@ -6,12 +6,14 @@ from TelegramBot.resumen import summarize_category
 
 TOKEN = ''
 MAX_SUMMARY_FRAGMENTS = 8
-logging.basicConfig(filename='bot.log', level=logging.ERROR, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='bot.log', level=logging.ERROR,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 bot = telebot.TeleBot(TOKEN)
 
 nlp = spacy.load('es_core_news_sm')
+
 
 def create_category_keyboard():
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
@@ -25,6 +27,7 @@ def create_category_keyboard():
     markup.row(item_reiniciar)
     return markup
 
+
 def start_bot():
     try:
         bot.polling()
@@ -32,13 +35,16 @@ def start_bot():
         logger.error("Error en start_bot: %s", str(e))
         start_bot()  # Reiniciar el bot en caso de un error
 
+
 @bot.message_handler(commands=['start'])
 def handle_start(message):
     try:
-        bot.send_message(message.chat.id, "¡Hola! Soy un bot de resumen. ¡Bienvenido!", reply_markup=create_category_keyboard())
+        bot.send_message(message.chat.id, "¡Hola! Soy un bot de resumen. ¡Bienvenido!",
+                         reply_markup=create_category_keyboard())
     except Exception as e:
         logger.error("Error en handle_start: %s", str(e))
         start_bot()  # Reiniciar el bot en caso de un error
+
 
 @bot.message_handler(func=lambda message: True)
 def handle_text(message):
@@ -88,12 +94,14 @@ def handle_text(message):
                 else:
                     break
         elif message.text == 'Reiniciar Bot':
-            bot.reply_to(message, "Bot reiniciado. Selecciona una categoría del teclado.", reply_markup=create_category_keyboard())
+            bot.reply_to(message, "Bot reiniciado. Selecciona una categoría del teclado.",
+                         reply_markup=create_category_keyboard())
         else:
             bot.reply_to(message, "Lo siento, no entiendo ese comando. Selecciona una categoría del teclado.")
     except Exception as e:
         logger.error("Error en handle_text: %s", str(e))
         start_bot()  # Reiniciar el bot en caso de un error
+
 
 @bot.message_handler(commands=['info'])
 def handle_info(message):
@@ -111,5 +119,6 @@ def handle_info(message):
     except Exception as e:
         logger.error("Error en handle_info: %s", str(e))
         start_bot()  # Reiniciar el bot en caso de un error
+
 
 start_bot()
