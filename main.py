@@ -1,10 +1,12 @@
 import os
 import requests
+import zlib
+import nltk
 from clasificador.clasificador import SVMClassifier
 from clasificador.normalizador import title_compare
 from scrapper.scrapper import Scraper
-import nltk
 from clasificador.nube_palabras import generar_nube_palabras
+
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -15,13 +17,34 @@ output_file = 'data/dataset.csv'
 if os.path.exists(output_file):
     os.remove(output_file)
 
-if not os.path.exists('SBW-vectors-300-min5.bin.gz'):
+file_path = 'SBW-vectors-300-min5.bin.gz'
+if not os.path.exists(file_path):
     url = "https://cs.famaf.unc.edu.ar/~ccardellino/SBWCE/SBW-vectors-300-min5.bin.gz"
     local_filename = "SBW-vectors-300-min5.bin.gz"
     response = requests.get(url)
+    
     if response.status_code == 200:
         with open(local_filename, 'wb') as file:
             file.write(response.content)
+
+        with open(local_filename, 'rb') as file:
+            try:
+                file_content = file.read()
+                
+                calculated_crc = zlib.crc32(file_content)
+                
+                print(f"Calculated CRC: {calculated_crc}")
+                stored_crc = zlib.crc32(response.content)
+                print(f"Stored CRC: {stored_crc}")
+                
+                if calculated_crc == stored_crc:
+                    print("Descarga exitosa y CRC válido.")
+                else:
+                    print("Error: CRC no válido. El archivo descargado puede estar corrupto.")
+            except Exception as e:
+                print(f"Error al verificar CRC: {str(e)}")
+else:
+    print(f"El archivo {file_path} ya existe localmente.")
 
 security_url = 'https://blog.segu-info.com.ar/sitemap.xml'
 baby_url = 'https://blogdelbebe.com/post-sitemap.xml'

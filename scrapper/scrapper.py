@@ -81,7 +81,7 @@ def get_random_user_agent():
 
 
 class Scraper:
-    def __init__(self, output_file, security_url, baby_url, sports_url, food_url, counts=30):
+    def __init__(self, output_file, security_url, baby_url, sports_url, food_url, counts=3):
         """
         constructor de la clase Scraper con las URLs de los sitios a trabajar.
 

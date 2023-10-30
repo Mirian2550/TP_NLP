@@ -5,6 +5,8 @@ import pandas as pd
 from unidecode import unidecode
 from sentence_transformers import SentenceTransformer, util
 from prettytable import PrettyTable
+from transformers import BertTokenizer, BertModel
+import torch
 
 
 
@@ -23,7 +25,7 @@ def title_category(category):
     for text in data_filter['title']:
         titles.append(text)
     return titles
-
+"""
 def title_compare(category):
     model = KeyedVectors.load_word2vec_format('SBW-vectors-300-min5.bin.gz', binary=True)
     titles = title_category(category)
@@ -38,10 +40,48 @@ def title_compare(category):
             title2_tokens = [token for token in title2_tokens if token in model]
             if not title1_tokens or not title2_tokens:
                 continue
-            #title_vector1 = model[title1_tokens]
-            #title_vector2 = model[title2_tokens]
             similarity = model.n_similarity(title1_tokens, title2_tokens)
             print(f"Similitud entre '{title1}' y '{title2}': {similarity:.4f}")
+"""
+def title_compare(category):
+    # Cargar modelos
+    w2v_model = KeyedVectors.load_word2vec_format('SBW-vectors-300-min5.bin.gz', binary=True)
+    bert_model = BertModel.from_pretrained('bert-base-uncased')
+    bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    sbert_model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
+
+    # Obtener títulos
+    titles = title_category(category)
+    num_titles = len(titles)
+
+    for i in range(num_titles):
+        for j in range(i + 1, num_titles):
+            title1 = titles[i]
+            title2 = titles[j]
+
+            # Word2Vec
+            title1_tokens_w2v = [token for token in title1.split() if token in w2v_model]
+            title2_tokens_w2v = [token for token in title2.split() if token in w2v_model]
+            if title1_tokens_w2v and title2_tokens_w2v:
+                similarity_w2v = w2v_model.n_similarity(title1_tokens_w2v, title2_tokens_w2v)
+                print(f"Similitud (Word2Vec) entre '{title1}' y '{title2}': {similarity_w2v:.4f}")
+
+            # BERT
+            combined_titles = title1 + " [SEP] " + title2
+            tokens_tensor = bert_tokenizer(combined_titles, return_tensors='pt', padding=True, truncation=True)
+            with torch.no_grad():
+                output = bert_model(**tokens_tensor)
+            embeddings_bert = output.last_hidden_state.mean(dim=1)
+            similarity_bert = torch.nn.functional.cosine_similarity(embeddings_bert[0], embeddings_bert[0], dim=0).item()
+            print(f"Similitud (BERT) entre '{title1}' y '{title2}': {similarity_bert:.4f}")
+
+
+            # SBERT
+            embeddings_sbert = sbert_model.encode([title1, title2])
+            embeddings_sbert_tensor = torch.tensor(embeddings_sbert)  # Convierte a tensor de PyTorch
+            similarity_sbert = torch.nn.functional.cosine_similarity(embeddings_sbert_tensor[0], embeddings_sbert_tensor[1], dim=0).item()
+            print(f"Similitud (SBERT) entre '{title1}' y '{title2}': {similarity_sbert:.4f}")
+
 
 
 

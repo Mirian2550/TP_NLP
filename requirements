@@ -8,3 +8,5 @@ nltk
 wordcloud
 unidecode
 spacy
+sentence_transformers
+prettytable
