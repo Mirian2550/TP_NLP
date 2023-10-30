@@ -1,3 +1,5 @@
+import os
+import requests
 from clasificador.clasificador import SVMClassifier
 from scrapper.scrapper import Scraper
 import nltk
@@ -8,6 +10,18 @@ nltk.download('stopwords')
 
 
 output_file = 'data/dataset.csv'
+
+if os.path.exists(output_file):
+    os.remove(output_file)
+
+if not os.path.exists('SBW-vectors-300-min5.bin.gz'):
+    url = "https://cs.famaf.unc.edu.ar/~ccardellino/SBWCE/SBW-vectors-300-min5.bin.gz"
+    local_filename = "SBW-vectors-300-min5.bin.gz"
+    response = requests.get(url)
+    if response.status_code == 200:
+        with open(local_filename, 'wb') as file:
+            file.write(response.content)
+
 security_url = 'https://blog.segu-info.com.ar/sitemap.xml'
 baby_url = 'https://blogdelbebe.com/post-sitemap.xml'
 sports_url = 'https://www.espn.com.ar/googlenewssitemap'
@@ -23,15 +37,15 @@ accuracy = svm_classifier.evaluate()
 print(f'Precisión del modelo SVM: {accuracy}')
 
 noticia_1 = ' El malware bancario brasileño conocido como "Grandoreiro" o "Mekotio" ha cruzado el charco, con una ' \
-             'nueva campaña de TA2725 dirigida a clientes de España, además de Brasil, Argentina y México. ' \
-             'La actividad de la Dark Web en América Latina ha aumentado en los últimos dos años y se concentra en ' \
-             'gran medida en dos países. Según el reporte de SOCRadar "Brazil Threat Landscape", 360 mil millones de ' \
-             'intentos de ciberataques azotaron la región en 2022, de los cuales 187 mil millones y 103 mil millones ' \
-             'afectaron a México y Brasil, respectivamente.' \
-             'Ahora hay cada vez más evidencia de que el cibercrimen en América Latina se está extendiendo hacia ' \
-             'afuera. En lo que va de 2023 se detectaron más de 70 variantes de este troyano bancario. ' \
-             'En América Latina, las detecciones de los sistemas de ESET muestran que Argentina (52%) es el país con ' \
-             'más actividad de este Mekotio, seguido por México (17%), Perú (12%), Chile (10%) y Brasil (3%). '
+            'nueva campaña de TA2725 dirigida a clientes de España, además de Brasil, Argentina y México. ' \
+            'La actividad de la Dark Web en América Latina ha aumentado en los últimos dos años y se concentra en ' \
+            'gran medida en dos países. Según el reporte de SOCRadar "Brazil Threat Landscape", 360 mil millones de ' \
+            'intentos de ciberataques azotaron la región en 2022, de los cuales 187 mil millones y 103 mil millones ' \
+            'afectaron a México y Brasil, respectivamente.' \
+            'Ahora hay cada vez más evidencia de que el cibercrimen en América Latina se está extendiendo hacia ' \
+            'afuera. En lo que va de 2023 se detectaron más de 70 variantes de este troyano bancario. ' \
+            'En América Latina, las detecciones de los sistemas de ESET muestran que Argentina (52%) es el país con ' \
+            'más actividad de este Mekotio, seguido por México (17%), Perú (12%), Chile (10%) y Brasil (3%). '
 
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_1])
 prediction = svm_classifier.model.predict(noticia_vectorized)
@@ -58,7 +72,6 @@ noticia_2 = 'Gemelos dicigóticos (llamados popularmente mellizos)' \
             'días de la fecundación. Cada embrión cuenta con su propia placenta y su propio saco amniótico. Como en el caso ' \
             'de los gemelos dicigóticos (mellizos) pero con la diferencia de que estos provienen del mismo óvulo y no de dos ' \
             'óvulos distintos.Suelen darse en un tercio de los casos de embarazos monocigóticos.'
-            
 
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_2])
 prediction = svm_classifier.model.predict(noticia_vectorized)
