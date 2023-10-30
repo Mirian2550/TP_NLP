@@ -1,6 +1,7 @@
 import os
 import requests
 from clasificador.clasificador import SVMClassifier
+from clasificador.normalizador import title_compare
 from scrapper.scrapper import Scraper
 import nltk
 from clasificador.nube_palabras import generar_nube_palabras
@@ -111,3 +112,5 @@ generar_nube_palabras('Seguridad Informatica')
 generar_nube_palabras('Bebes')
 generar_nube_palabras('Deportes')
 generar_nube_palabras('Recetas')
+
+title_compare('Seguridad Informatica')

@@ -1,7 +1,11 @@
+from gensim.models import KeyedVectors
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 import pandas as pd
 from unidecode import unidecode
+from sentence_transformers import SentenceTransformer, util
+from prettytable import PrettyTable
+
 
 
 def resumen_categoria(categoria):
@@ -10,6 +14,36 @@ def resumen_categoria(categoria):
     columna_texto = data_filtrado['text']
     resumen = ' '.join(columna_texto.astype(str))
     return resumen
+
+
+def title_category(category):
+    data = pd.read_csv('data/dataset.csv', delimiter='|')
+    data_filter = data[data['category'] == category]
+    titles = []
+    for text in data_filter['title']:
+        titles.append(text)
+    return titles
+
+def title_compare(category):
+    model = KeyedVectors.load_word2vec_format('SBW-vectors-300-min5.bin.gz', binary=True)
+    titles = title_category(category)
+    num_titles = len(titles)
+    for i in range(num_titles):
+        for j in range(i + 1, num_titles):
+            title1 = titles[i]
+            title2 = titles[j]
+            title1_tokens = title1.split()
+            title2_tokens = title2.split()
+            title1_tokens = [token for token in title1_tokens if token in model]
+            title2_tokens = [token for token in title2_tokens if token in model]
+            if not title1_tokens or not title2_tokens:
+                continue
+            #title_vector1 = model[title1_tokens]
+            #title_vector2 = model[title2_tokens]
+            similarity = model.n_similarity(title1_tokens, title2_tokens)
+            print(f"Similitud entre '{title1}' y '{title2}': {similarity:.4f}")
+
+
 
 
 def procesar_texto(categoria):
