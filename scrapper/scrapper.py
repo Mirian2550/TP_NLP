@@ -81,7 +81,7 @@ def get_random_user_agent():
 
 
 class Scraper:
-    def __init__(self, output_file, security_url, baby_url, sports_url, food_url, counts=3):
+    def __init__(self, output_file, security_url, baby_url, sports_url, food_url, counts=50):
         """
         constructor de la clase Scraper con las URLs de los sitios a trabajar.
 
@@ -103,7 +103,7 @@ class Scraper:
 
         logging.basicConfig(filename='scraper.log', level=logging.INFO,
                             format='%(asctime)s [%(levelname)s]: %(message)s')
-
+        
     def write_to_csv(self, data):
         """
         Escribe datos en el archivo CSV de salida.
@@ -118,16 +118,21 @@ class Scraper:
 
                 if csvfile.tell() == 0:
                     writer.writeheader()
+            
+                records = []
                 text_cleaned = data['text'].strip().replace(',', '').replace('.', '').replace(';', '')
                 text_cleaned = text_cleaned.replace('"', '')
-                writer.writerow({
+                records.append({
                     'title': data['title'].lower(),
                     'url': data['url'],
                     'text': text_cleaned.lower(),
                     'category': data['category']
                 })
+
+                writer.writerows(records)
         except Exception as e:
             logging.error(f"Error al escribir en el archivo CSV: {e}")
+
 
     def scrape_security_news(self):
         """
@@ -214,6 +219,11 @@ class Scraper:
                     response_url = requests.get(url, headers=headers, stream=True)
                     if response_url.status_code == 200:
                         soup = BeautifulSoup(response_url.text, 'html.parser')
+                        # Comprobar si la noticia está dentro de <div class="rpp_container">
+                        rpp_container = soup.find('div', class_='rpp_container')
+                        if rpp_container:
+                            continue  # Ignorar noticias dentro de rpp_container
+
                         title = soup.h1.text
                         title = title.replace('\n', '').lstrip()
                         paragraphs = soup.find_all('p')

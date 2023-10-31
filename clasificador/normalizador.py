@@ -171,7 +171,7 @@ def procesar_texto(categoria):
                                "fuésemos", "fueseis", "fuesen", "tenía", "tenías", "teníamos", "teníais", "tenían",
                                "tuve", "tuviste", "tuvo", "tuvimos", "tuvisteis", "tuvieron", "tuviera", "tuvieras",
                                "tuviéramos", "tuvierais", "tuvieran", "tuviese", "tuvieses", "tuviésemos", "tuvieseis",
-                               "tuviesen", "teniendo", "tenido", "tenida", "tenidos", "tenidas", "tened"]
+                               "tuviesen", "teniendo", "tenido", "tenida", "tenidos", "tenidas", "tened","ano"]
     stop_words.update(palabras_vacias_espanol)
     palabras = [palabra for palabra in palabras if len(palabra) >= 3 and palabra not in stop_words]
     return palabras, categoria
