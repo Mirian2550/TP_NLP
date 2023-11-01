@@ -1,14 +1,14 @@
 import os
+import time
+
 import requests
 import zlib
-import nltk
+
 from clasificador.clasificador import SVMClassifier
+
 from clasificador.normalizador import title_compare
 from scrapper.scrapper import Scraper
 from clasificador.nube_palabras import generar_nube_palabras
-
-nltk.download('punkt')
-nltk.download('stopwords')
 
 output_file = 'data/dataset.csv'
 
@@ -20,11 +20,9 @@ if not os.path.exists(file_path):
     url = "https://cs.famaf.unc.edu.ar/~ccardellino/SBWCE/SBW-vectors-300-min5.bin.gz"
     local_filename = "SBW-vectors-300-min5.bin.gz"
     response = requests.get(url)
-
     if response.status_code == 200:
         with open(local_filename, 'wb') as file:
             file.write(response.content)
-
         with open(local_filename, 'rb') as file:
             try:
                 file_content = file.read()
@@ -44,13 +42,17 @@ if not os.path.exists(file_path):
 else:
     print(f"El archivo {file_path} ya existe localmente.")
 
-security_url = 'https://blog.segu-info.com.ar/sitemap.xml'
+security_url = 'http://blog.segu-info.com.ar/sitemap.xml?page=2'
 baby_url = 'https://blogdelbebe.com/post-sitemap.xml'
 sports_url = 'https://www.espn.com.ar/googlenewssitemap'
 food_url = 'https://www.recetasnestle.com.mx/sitemap.xml'
-
+start_time = time.time()
+print('Hora de inicio scrapper:', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(start_time)))
 scraper = Scraper(output_file, security_url, baby_url, sports_url, food_url)
 scraper.run_scrapers()
+end_time = time.time()
+execution_time = end_time - start_time
+print('Hora de fin scrapper:', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(end_time)))
 
 svm_classifier = SVMClassifier(output_file, kernel='linear', c=1.0)
 svm_classifier.train()
@@ -72,7 +74,7 @@ noticia_1 = ' El malware bancario brasileño conocido como "Grandoreiro" o "Meko
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_1])
 prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
-print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
+print(f'La noticia se clasifica en la categoría: {predicted_category[0]}', ' esperada:Seguridad')
 
 noticia_2 = 'Gemelos dicigóticos (llamados popularmente mellizos)' \
             'Gemelos MellizosEste tipo de gemelos se produce cuando dos óvulos son fecundados por dos ' \
@@ -94,29 +96,12 @@ noticia_2 = 'Gemelos dicigóticos (llamados popularmente mellizos)' \
             'Gemelos monocigóticos Por una razón cuyo origen médico no ha sido aún identificado, en algunos casos, ' \
             'tras la ' \
             'fecundación del óvulo (durante los siguientes 14 días), este sufre una división, dando lugar a dos ' \
-            'huevos ' \
-            'idénticos. Es decir que de un solo óvulo fecundado por un solo espermatozoide surgen dos embriones. ' \
-            'Por esta ' \
-            'razón, los gemelos monocigóticos son del mismo sexo y se parecen físicamente e incluso psíquicamente. ' \
-            'Sucede ' \
-            'esto en el 25% de los embarazos gemelares.' \
-            'Dependiendo de en qué momento post fecundación se produzca la división del óvulo, se darán ' \
-            'procesos ' \
-            'diferentes ' \
-            'y, por tanto, los gemelos pueden ser de diferente tipo:' \
-            'Tipos de gemelos Gemelos monocigóticos diplacentarios biamnióticos La división del óvulo tuvo lugar a ' \
-            'los 3 ' \
-            'días de la fecundación. Cada embrión cuenta con su propia placenta y su propio saco amniótico. Como en ' \
-            'el caso ' \
-            'de los gemelos dicigóticos (mellizos) pero con la diferencia de que estos provienen del mismo óvulo y ' \
-            'no ' \
-            'de dos ' \
-            'óvulos distintos.Suelen darse en un tercio de los casos de embarazos monocigóticos.'
+            'huevos '
 
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_2])
 prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
-print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
+print(f'La noticia se clasifica en la categoría: {predicted_category[0]}', ' esperada:Bebe')
 
 noticia_3 = 'Las dos incógnitas era el cómo y cuánto. Quién, era una pregunta que tenía una respuesta antes de ' \
             'comenzar ' \
@@ -129,27 +114,41 @@ noticia_3 = 'Las dos incógnitas era el cómo y cuánto. Quién, era una pregunt
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_3])
 prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
-print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
+print(f'La noticia se clasifica en la categoría: {predicted_category[0]}', ' esperada:Deporte')
 
-noticia_4 = 'Preparación: ' \
-            'Colocar la última tapa y decorar cubriendo toda la torta con crema chantilly. Cubrirla con merengues ' \
-            'triturados y gajos de duraznos en almíbar. Dejar la torta chajà en la heladera para que se enfríe y ' \
-            'servir pasada una hora.' \
-            'Cortá el bizcochuelo en 3 capas iguales y humedecerlas con el almíbar.' \
-            'Untar una de las capas con dulce de leche y cubrirlo con trozos de merengues rotos, reservando algunos ' \
-            'merengues para decorar.' \
-            'En otra de las capas untar con crema chantilly y agregar merengues y bastantes duraznos cortados en ' \
-            'cubos, ' \
-            'reservando 4 mitades de duraznos en almíbar para decorar la torta posteriormente. '
+noticia_4 = 'Ingredientes: 75 minutos 5 unidades 1 kg Harina 0000 ' \
+            '50 g Levadura Fresca o 13g de Levadura Seca (2cdas. Al ras)' \
+            '50 cc. De aceite (8 cucharadas)' \
+            '600 cc aprox. Agua tibia' \
+            '2 cdas. De Sal (al ras)' \
+            '1 cdita. Azúcar' \
+            'c/n Salsa o puré de tomates' \
+            'Paso 1: En un recipiente colocar la levadura fresca y desmenuzarla un poco o con las manos o ' \
+            'directamente ' \
+            'la levadura seca, agregarle 4 cucharadas del harina de la receta junto con la cucharadita de azúcar y ' \
+            '100cc (1/2 vaso) de agua tibia y mezclar muy bien hasta unir todo (tiene que quedar una consistencia ni ' \
+            'muy espesa ni muy líquida) tapar y dejar reposar por unos 10 para activar la levadura.Foto del paso 1 de ' \
+            'la receta Masa de pizza fácil y casera.Paso 2:En otro recipiente amplio colocar el harina formando una ' \
+            'corona y añadir alrededor la sal (esto es para que no tome contacto directo con la levadura porque la ' \
+            '"mata") y en el centro colocar la levadura ya activada y el aceite.' \
+            'Foto del paso 2 de la receta Masa de pizza fácil y casera.    ' \
+            'Incorporar el agua tibia de a poco e ir uniendo ingredientes desde desde centro hasta lograr una ' \
+            'masa chiclosa (se tiene que pegar un poco en las manos) si no te gusta esta textura para trabajarla ' \
+            'agrega menos agua (con 450 a 500cc andarás bien. Todo depende como te guste el resultado final de una ' \
+            'masa, más compacta o más aireada) Amasar con ganas por unos 20 aprox. Recordá que mientras más amases ' \
+            'mejor miga desarrollarás para tu pizza Foto del paso 3 de la receta Masa de pizza fácil y casera Paso 4 ' \
+            'Una vez finalizado el amasado formar un bollo y untarlo con un poco de aceite tapar y dejar reposar por ' \
+            '40 a 50 minutos. Hasta que triplique su volumen. Foto del paso 4 de la receta Masa de pizza fácil y casera' \
+            'Paso 5 Pasado el tiempo de leudado desgasificar la masa (aplastarla con las manos y sacar el gas que ' \
+            'produce la levadura) y dividir en 4 bollos (si elegiste hacer la masa más humeda te recomiendo este paso ' \
+            'hacerlo untando las manos en aceite para evitar que se te pegotee) Para la cocción: aceitar una pizzera y ' \
+            'estirar el bollo de masa desde el centro hacia los bordes y pincelar con salsa o puré de tomates. Llevar ' \
+            'a horno fuerte (200 a 250°) por 10. Foto del paso 5 de la receta Masa de pizza fácil y casera Paso 6' \
+            'Y listo! Pre-pizzas listas para armar como más te gusten!'
 
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_4])
 prediction = svm_classifier.model.predict(noticia_vectorized)
 predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
-print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
-
-generar_nube_palabras('Seguridad Informatica')
-generar_nube_palabras('Bebes')
-generar_nube_palabras('Deportes')
-generar_nube_palabras('Recetas')
-
+print(f'La noticia se clasifica en la categoría: {predicted_category[0]}', ' esperada:Recetas')
+generar_nube_palabras()
 title_compare('Seguridad Informatica')

@@ -128,11 +128,12 @@ def get_random_user_agent():
 
 
 class Scraper:
-    def __init__(self, output_file, security_url, baby_url, sports_url, food_url, counts=20):
+    def __init__(self, output_file, security_url, baby_url, sports_url, food_url, counts=50, request_delay=1):
         """
         constructor de la clase Scraper con las URLs de los sitios a trabajar.
 
         Args:
+            request_delay: tiempo entre peticion
             output_file (str): Nombre del archivo CSV de salida.
             security_url (str): URL de noticias de seguridad .xml.
             baby_url (str): URL de noticias de bendis.
@@ -147,6 +148,7 @@ class Scraper:
         self.output_file = output_file
         self.counts = counts
         self.user_agent = get_random_user_agent()
+        self.request_delay = request_delay
 
         logging.basicConfig(filename='scraper.log', level=logging.INFO,
                             format='%(asctime)s [%(levelname)s]: %(message)s')
@@ -180,165 +182,97 @@ class Scraper:
         except Exception as e:
             logging.error(f"Error al escribir en el archivo CSV: {e}")
 
-    def scrape_security_news(self):
-        """
-        scrapper noticias de seguridad y las escribe en el archivo CSV
-        """
+    def get_news_urls(self, url):
         try:
             headers = {'User-Agent': self.user_agent}
-            response = requests.get(self.security_url, headers=headers, stream=True)
-            sub_sitemap = []
+            response = requests.get(url, headers=headers, stream=True)
+            url_max = self.counts
             if response.status_code == 200:
-                root = ET.fromstring(response.text)
-                locs = root.findall(".//{http://www.sitemaps.org/schemas/sitemap/0.9}loc")
-                for loc in locs:
-                    sub_sitemap.append(loc.text)
-                    break
-                url_links = []
-                for site_map in sub_sitemap:
-                    headers = {'User-Agent': self.user_agent}
-                    response_sitemap = requests.get(site_map, headers=headers, stream=True)
-                    if response_sitemap.status_code == 200:
-                        root_map = ET.fromstring(response_sitemap.text)
-                        locs = root_map.findall(".//{http://www.sitemaps.org/schemas/sitemap/0.9}loc")
-                        for loc in locs:
-                            url_links.append(loc.text)
+                root = ET.fromstring(response.content)
+                url_list = []
+                for url_elem in root.findall(".//{http://www.sitemaps.org/schemas/sitemap/0.9}url"):
+                    loc_elem = url_elem.find("{http://www.sitemaps.org/schemas/sitemap/0.9}loc")
+                    if loc_elem is not None and (len(url_list) < url_max):
+                        url = loc_elem.text
+                        url_list.append(url)
+                return url_list
+        except Exception as e:
+            logging.error(f"Error al obtener URLs de noticias: {e}")
+            return []
 
-                for link in url_links[1:self.counts]:
-                    headers = {'User-Agent': self.user_agent}
-                    response_url = requests.get(link, headers=headers, stream=True)
-                    if response_url.status_code == 200:
-                        soup = BeautifulSoup(response_url.text, 'html.parser')
-                        title = soup.find('h2', class_='post-title entry-title')
-                        if title:
-                            title = title.text.replace('\n', '').lstrip()
-                        else:
-                            title = "No title found"
-                        div_with_classes = soup.find('div', class_='post-body entry-content')
-                        if div_with_classes:
-                            text = clean_p(div_with_classes)
-                            self.write_to_csv({
-                                'title': title,
-                                'url': link,
-                                'text': text,
-                                'category': 'Seguridad Informatica'
-                            })
+    def scrape_url(self, url, body='entry-content clear', category='Bebes'):
+        try:
+            headers = {'User-Agent': self.user_agent}
+            response_url = requests.get(url, headers=headers, stream=True)
+            if response_url.status_code == 200:
+                soup = BeautifulSoup(response_url.text, 'html.parser')
 
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Error de solicitud HTTP: {e}")
+                if category == 'Seguridad Informatica':
+                    title = soup.find('h2', class_='post-title entry-title')
+                    if title:
+                        title = title.text.replace('\n', '').lstrip()
+                    else:
+                        title = "No title found"
+                else:
+                    title = soup.h1.text
+                    title = title.replace('\n', '').lstrip()
+                div_with_classes = soup.find('div', class_=body)
+                if div_with_classes:
+                    text = clean_p(div_with_classes)
+                    self.write_to_csv({
+                        'title': title,
+                        'url': url,
+                        'text': text,
+                        'category': category
+                    })
+        except Exception as e:
+            logging.error(f"Error al obtener noticias : {e}")
 
-        except ET.ParseError as e:
-            logging.error(f"Error al analizar XML: {e}")
-
-        except AttributeError as e:
-            logging.error(f"Error de atributo: {e}")
+    def scrape_security_news(self):
+        security_news_urls = self.get_news_urls(self.security_url)
+        processes = [
+            multiprocessing.Process(
+                target=self.scrape_url, args=(url, 'post-body entry-content', 'Seguridad Informatica')) for url in
+            security_news_urls
+        ]
+        for process in processes:
+            process.start()
+        for process in processes:
+            process.join()
 
     def scrape_baby_news(self):
-        try:
-            headers = {'User-Agent': self.user_agent}
-            response = requests.get(self.baby_url, headers=headers, stream=True)
-            if response.status_code == 200:
-                root = ET.fromstring(response.content)
-                url_list = []
-                for url_elem in root.findall(".//{http://www.sitemaps.org/schemas/sitemap/0.9}url"):
-                    loc_elem = url_elem.find("{http://www.sitemaps.org/schemas/sitemap/0.9}loc")
-                    if loc_elem is not None:
-                        url = loc_elem.text
-                        url_list.append(url)
-                for url in url_list[1:self.counts]:
-                    headers = {'User-Agent': self.user_agent}
-                    response_url = requests.get(url, headers=headers, stream=True)
-                    if response_url.status_code == 200:
-                        soup = BeautifulSoup(response_url.text, 'html.parser')
-                        title = soup.h1.text
-                        title = title.replace('\n', '').lstrip()
-                        div_with_classes = soup.find('div', class_='entry-content clear')
-                        if div_with_classes:
-                            text = clean_p(div_with_classes)
-                            self.write_to_csv({
-                                'title': title,
-                                'url': url,
-                                'text': text,
-                                'category': 'Bebes'
-                            })
-
-        except Exception as e:
-            logging.error(f"Error al obtener noticias de bebes: {e}")
+        baby_news_urls = self.get_news_urls(self.baby_url)
+        processes = [
+            multiprocessing.Process(target=self.scrape_url, args=(url, 'entry-content clear', 'Bebes')) for url in
+            baby_news_urls
+        ]
+        for process in processes:
+            process.start()
+        for process in processes:
+            process.join()
 
     def scrape_sports_news(self):
-        try:
-            headers = {'User-Agent': self.user_agent}
-            response = requests.get(self.sports_url, headers=headers, stream=True)
-            if response.status_code == 200:
-                root = ET.fromstring(response.content)
-
-                url_list = []
-                for url_elem in root.findall(".//{http://www.sitemaps.org/schemas/sitemap/0.9}url"):
-                    loc_elem = url_elem.find("{http://www.sitemaps.org/schemas/sitemap/0.9}loc")
-                    if loc_elem is not None:
-                        url = loc_elem.text
-                        url_list.append(url)
-
-                for url in url_list[1:self.counts]:
-                    headers = {'User-Agent': self.user_agent}
-                    response_url = requests.get(url, headers=headers, stream=True)
-                    if response_url.status_code == 200:
-                        soup = BeautifulSoup(response_url.text, 'html.parser')
-
-                        div_with_classes = soup.find('div', class_='article-body')
-                        if div_with_classes:
-                            title = soup.h1.text
-                            title = title.replace('\n', '').lstrip()
-                            text = clean_p(div_with_classes)
-                            self.write_to_csv({
-                                'title': title,
-                                'url': url,
-                                'text': text,
-                                'category': 'Deportes'
-                            })
-                        else:
-                            logging.warning(f"Div with classes not found in {url}")
-                    else:
-                        logging.error(f"Failed to retrieve {url}. Status code: {response_url.status_code}")
-        except Exception as e:
-            logging.error(f"Error en la función de scraping de noticias de deportes: {e}")
+        sports_news_urls = self.get_news_urls(self.sports_url)
+        processes = [
+            multiprocessing.Process(target=self.scrape_url, args=(url, 'article-body', 'Deportes')) for url in
+            sports_news_urls
+        ]
+        for process in processes:
+            process.start()
+        for process in processes:
+            process.join()
 
     def scrape_food_news(self):
-        try:
-            headers = {'User-Agent': self.user_agent}
-            response = requests.get(self.food_url, headers=headers, stream=True)
-            if response.status_code == 200:
-                root = ET.fromstring(response.content)
-
-                url_list = []
-                for url_elem in root.findall(".//{http://www.sitemaps.org/schemas/sitemap/0.9}url"):
-                    loc_elem = url_elem.find("{http://www.sitemaps.org/schemas/sitemap/0.9}loc")
-                    if loc_elem is not None:
-                        url_list.append(loc_elem.text)
-
-                for url in url_list[1:self.counts]:
-                    headers = {'User-Agent': self.user_agent}
-                    response_url = requests.get(url, headers=headers, stream=True)
-                    if response_url.status_code == 200:
-                        soup = BeautifulSoup(response_url.text, 'html.parser')
-
-                        div_with_classes = soup.find('div', class_='container container--no-padding-md')
-                        if div_with_classes:
-                            titulo = soup.h1.text
-                            titulo = titulo.replace('\n', '').lstrip()
-                            text = clean_p(div_with_classes)
-                            self.write_to_csv({
-                                'title': titulo,
-                                'url': url,
-                                'text': text,
-                                'category': 'Recetas'
-                            })
-                        else:
-                            logging.warning(f"Div with classes not found in {url}")
-                    else:
-                        logging.error(f"Failed to retrieve {url}. Status code: {response_url.status_code}")
-        except Exception as e:
-            logging.error(f"Error en la función de scraping de noticias de comida: {e}")
+        food_news_urls = self.get_news_urls(self.food_url)
+        processes = [
+            multiprocessing.Process(
+                target=self.scrape_url, args=(url, 'container container--no-padding-md', 'Recetas')) for url in
+            food_news_urls
+        ]
+        for process in processes:
+            process.start()
+        for process in processes:
+            process.join()
 
     def run_scrapers(self):
         processes = [
@@ -353,4 +287,3 @@ class Scraper:
 
         for process in processes:
             process.join()
-

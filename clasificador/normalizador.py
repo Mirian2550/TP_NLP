@@ -1,13 +1,13 @@
+import nltk
 from gensim.models import KeyedVectors
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 import pandas as pd
 from unidecode import unidecode
-from sentence_transformers import SentenceTransformer, util
-from prettytable import PrettyTable
+from sentence_transformers import SentenceTransformer
 from transformers import BertTokenizer, BertModel
 import torch
-
+nltk.data.path.append('nltk_data')
 
 
 def resumen_categoria(categoria):
@@ -25,24 +25,8 @@ def title_category(category):
     for text in data_filter['title']:
         titles.append(text)
     return titles
-"""
-def title_compare(category):
-    model = KeyedVectors.load_word2vec_format('SBW-vectors-300-min5.bin.gz', binary=True)
-    titles = title_category(category)
-    num_titles = len(titles)
-    for i in range(num_titles):
-        for j in range(i + 1, num_titles):
-            title1 = titles[i]
-            title2 = titles[j]
-            title1_tokens = title1.split()
-            title2_tokens = title2.split()
-            title1_tokens = [token for token in title1_tokens if token in model]
-            title2_tokens = [token for token in title2_tokens if token in model]
-            if not title1_tokens or not title2_tokens:
-                continue
-            similarity = model.n_similarity(title1_tokens, title2_tokens)
-            print(f"Similitud entre '{title1}' y '{title2}': {similarity:.4f}")
-"""
+
+
 def title_compare(category):
     # Cargar modelos
     w2v_model = KeyedVectors.load_word2vec_format('SBW-vectors-300-min5.bin.gz', binary=True)
@@ -72,18 +56,16 @@ def title_compare(category):
             with torch.no_grad():
                 output = bert_model(**tokens_tensor)
             embeddings_bert = output.last_hidden_state.mean(dim=1)
-            similarity_bert = torch.nn.functional.cosine_similarity(embeddings_bert[0], embeddings_bert[0], dim=0).item()
+            similarity_bert = torch.nn.functional.cosine_similarity(embeddings_bert[0], embeddings_bert[0],
+                                                                    dim=0).item()
             print(f"Similitud (BERT) entre '{title1}' y '{title2}': {similarity_bert:.4f}")
-
 
             # SBERT
             embeddings_sbert = sbert_model.encode([title1, title2])
             embeddings_sbert_tensor = torch.tensor(embeddings_sbert)  # Convierte a tensor de PyTorch
-            similarity_sbert = torch.nn.functional.cosine_similarity(embeddings_sbert_tensor[0], embeddings_sbert_tensor[1], dim=0).item()
+            similarity_sbert = torch.nn.functional.cosine_similarity(embeddings_sbert_tensor[0],
+                                                                     embeddings_sbert_tensor[1], dim=0).item()
             print(f"Similitud (SBERT) entre '{title1}' y '{title2}': {similarity_sbert:.4f}")
-
-
-
 
 
 def procesar_texto(categoria):
@@ -92,7 +74,8 @@ def procesar_texto(categoria):
     texto = unidecode(texto)
     palabras = word_tokenize(texto)
     stop_words = set(stopwords.words('spanish'))
-    palabras_vacias_espanol = ["estan", "aun", "tambien", "vez", "todos", "todas", "asi", "uno", "dos", "gran", "aqui",
+    palabras_vacias_espanol = ["nan", "estan", "aun", "tambien", "vez", "todos", "todas", "asi", "uno", "dos", "gran",
+                               "aqui",
                                "min", "mas", "de", "la", "que", "el", "en", "y", "a", "los", "del", "se", "las", "por",
                                "un", "para",
                                "con", "no", "una", "su", "al", "lo", "como", "más", "pero", "sus", "le", "ya", "o",
@@ -171,7 +154,7 @@ def procesar_texto(categoria):
                                "fuésemos", "fueseis", "fuesen", "tenía", "tenías", "teníamos", "teníais", "tenían",
                                "tuve", "tuviste", "tuvo", "tuvimos", "tuvisteis", "tuvieron", "tuviera", "tuvieras",
                                "tuviéramos", "tuvierais", "tuvieran", "tuviese", "tuvieses", "tuviésemos", "tuvieseis",
-                               "tuviesen", "teniendo", "tenido", "tenida", "tenidos", "tenidas", "tened","ano"]
+                               "tuviesen", "teniendo", "tenido", "tenida", "tenidos", "tenidas", "tened", "ano"]
     stop_words.update(palabras_vacias_espanol)
     palabras = [palabra for palabra in palabras if len(palabra) >= 3 and palabra not in stop_words]
     return palabras, categoria
