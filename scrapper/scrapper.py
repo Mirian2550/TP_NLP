@@ -1,5 +1,5 @@
 import csv
-import threading
+import multiprocessing
 import random
 import re
 
@@ -7,6 +7,53 @@ import requests
 from bs4 import BeautifulSoup
 import xml.etree.ElementTree as ET
 import logging
+
+
+def remove_p_with_a(tag):
+    return tag.name == 'p' and tag.find('a')
+
+
+def remove_p_with_span(tag):
+    return tag.name == 'p' and tag.find('span')
+
+
+def clean_p(div_with_classes):
+    noscript_elements = div_with_classes.find_all('noscript')
+    for noscript in noscript_elements:
+        noscript.extract()
+    img_elemnts = div_with_classes.find_all('img')
+    for img in img_elemnts:
+        img.extract()
+    script_elements = div_with_classes.find_all('script')
+    for script in script_elements:
+        script.extract()
+
+    div_elements = div_with_classes.find_all('div')
+    for div in div_elements:
+        div.extract()
+    section_elements = div_with_classes.find_all('section')
+    for div in section_elements:
+        div.extract()
+
+    span_elements = div_with_classes.find_all('span')
+    for div in span_elements:
+        div.extract()
+    p_elements_with_a = div_with_classes.find_all(remove_p_with_a)
+    for p in p_elements_with_a:
+        p.extract()
+
+    p_elements_with_span = div_with_classes.find_all(remove_p_with_span)
+    for p in p_elements_with_span:
+        p.extract()
+
+    paragraphs = div_with_classes.find_all('p')
+    text = ''
+    for paragraph in paragraphs:
+        text += paragraph.text
+    text = text.replace('\n', '')
+    text = re.sub(r'[,|\t]', ' ', text)
+    text = text.replace('\n', '')
+    return text
 
 
 def get_random_user_agent():
@@ -81,7 +128,7 @@ def get_random_user_agent():
 
 
 class Scraper:
-    def __init__(self, output_file, security_url, baby_url, sports_url, food_url, counts=50):
+    def __init__(self, output_file, security_url, baby_url, sports_url, food_url, counts=20):
         """
         constructor de la clase Scraper con las URLs de los sitios a trabajar.
 
@@ -103,7 +150,7 @@ class Scraper:
 
         logging.basicConfig(filename='scraper.log', level=logging.INFO,
                             format='%(asctime)s [%(levelname)s]: %(message)s')
-        
+
     def write_to_csv(self, data):
         """
         Escribe datos en el archivo CSV de salida.
@@ -118,7 +165,7 @@ class Scraper:
 
                 if csvfile.tell() == 0:
                     writer.writeheader()
-            
+
                 records = []
                 text_cleaned = data['text'].strip().replace(',', '').replace('.', '').replace(';', '')
                 text_cleaned = text_cleaned.replace('"', '')
@@ -132,7 +179,6 @@ class Scraper:
                 writer.writerows(records)
         except Exception as e:
             logging.error(f"Error al escribir en el archivo CSV: {e}")
-
 
     def scrape_security_news(self):
         """
@@ -170,28 +216,13 @@ class Scraper:
                             title = "No title found"
                         div_with_classes = soup.find('div', class_='post-body entry-content')
                         if div_with_classes:
-
-                            paragraphs = div_with_classes.find_all('p')
-
-                            filtered_paragraphs = []
-                            for paragraph in paragraphs:
-
-                                if not any(paragraph.find_parents(['b', 'a'])):
-                                    filtered_paragraphs.append(paragraph)
-                            text = ''
-                            for paragraph in filtered_paragraphs:
-                                text += paragraph.text
-                            text = text.replace('\n', '')
-                            text = re.sub(r'[,|\t]', ' ', text)
-                            text = text.replace('\n', '')
-                        else:
-                            text = "No text found"
-                        self.write_to_csv({
-                            'title': title,
-                            'url': link,
-                            'text': text,
-                            'category': 'Seguridad Informatica'
-                        })
+                            text = clean_p(div_with_classes)
+                            self.write_to_csv({
+                                'title': title,
+                                'url': link,
+                                'text': text,
+                                'category': 'Seguridad Informatica'
+                            })
 
         except requests.exceptions.RequestException as e:
             logging.error(f"Error de solicitud HTTP: {e}")
@@ -219,25 +250,17 @@ class Scraper:
                     response_url = requests.get(url, headers=headers, stream=True)
                     if response_url.status_code == 200:
                         soup = BeautifulSoup(response_url.text, 'html.parser')
-                        # Comprobar si la noticia está dentro de <div class="rpp_container">
-                        rpp_container = soup.find('div', class_='rpp_container')
-                        if rpp_container:
-                            continue  # Ignorar noticias dentro de rpp_container
-
                         title = soup.h1.text
                         title = title.replace('\n', '').lstrip()
-                        paragraphs = soup.find_all('p')
-                        text = ''
-                        for paragraph in paragraphs:
-                            text += paragraph.text
-                        text = text.replace('\n', '')
-
-                        self.write_to_csv({
-                            'title': title,
-                            'url': url,
-                            'text': text,
-                            'category': 'Bebes'
-                        })
+                        div_with_classes = soup.find('div', class_='entry-content clear')
+                        if div_with_classes:
+                            text = clean_p(div_with_classes)
+                            self.write_to_csv({
+                                'title': title,
+                                'url': url,
+                                'text': text,
+                                'category': 'Bebes'
+                            })
 
         except Exception as e:
             logging.error(f"Error al obtener noticias de bebes: {e}")
@@ -264,17 +287,13 @@ class Scraper:
 
                         div_with_classes = soup.find('div', class_='article-body')
                         if div_with_classes:
-                            paragraphs = div_with_classes.find_all('p')
-                            titulo = soup.h1.text
-                            titulo = titulo.replace('\n', '').lstrip()
-                            texto = ''
-                            for paragraph in paragraphs:
-                                texto += paragraph.text
-                            texto = texto.replace('\n', '')
+                            title = soup.h1.text
+                            title = title.replace('\n', '').lstrip()
+                            text = clean_p(div_with_classes)
                             self.write_to_csv({
-                                'title': titulo,
+                                'title': title,
                                 'url': url,
-                                'text': texto,
+                                'text': text,
                                 'category': 'Deportes'
                             })
                         else:
@@ -305,17 +324,13 @@ class Scraper:
 
                         div_with_classes = soup.find('div', class_='container container--no-padding-md')
                         if div_with_classes:
-                            paragraphs = div_with_classes.find_all('p')
                             titulo = soup.h1.text
                             titulo = titulo.replace('\n', '').lstrip()
-                            texto = ''
-                            for paragraph in paragraphs:
-                                texto += paragraph.text
-                            texto = texto.replace('\n', '')
+                            text = clean_p(div_with_classes)
                             self.write_to_csv({
                                 'title': titulo,
                                 'url': url,
-                                'text': texto,
+                                'text': text,
                                 'category': 'Recetas'
                             })
                         else:
@@ -326,13 +341,16 @@ class Scraper:
             logging.error(f"Error en la función de scraping de noticias de comida: {e}")
 
     def run_scrapers(self):
-        threads = [threading.Thread(target=self.scrape_security_news),
-                   threading.Thread(target=self.scrape_baby_news),
-                   threading.Thread(target=self.scrape_sports_news),
-                   threading.Thread(target=self.scrape_food_news)]
+        processes = [
+            multiprocessing.Process(target=self.scrape_security_news),
+            multiprocessing.Process(target=self.scrape_baby_news),
+            multiprocessing.Process(target=self.scrape_sports_news),
+            multiprocessing.Process(target=self.scrape_food_news)
+        ]
 
-        for thread in threads:
-            thread.start()
+        for process in processes:
+            process.start()
 
-        for thread in threads:
-            thread.join()
+        for process in processes:
+            process.join()
+

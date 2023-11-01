@@ -7,10 +7,8 @@ from clasificador.normalizador import title_compare
 from scrapper.scrapper import Scraper
 from clasificador.nube_palabras import generar_nube_palabras
 
-
 nltk.download('punkt')
 nltk.download('stopwords')
-
 
 output_file = 'data/dataset.csv'
 
@@ -22,7 +20,7 @@ if not os.path.exists(file_path):
     url = "https://cs.famaf.unc.edu.ar/~ccardellino/SBWCE/SBW-vectors-300-min5.bin.gz"
     local_filename = "SBW-vectors-300-min5.bin.gz"
     response = requests.get(url)
-    
+
     if response.status_code == 200:
         with open(local_filename, 'wb') as file:
             file.write(response.content)
@@ -30,13 +28,13 @@ if not os.path.exists(file_path):
         with open(local_filename, 'rb') as file:
             try:
                 file_content = file.read()
-                
+
                 calculated_crc = zlib.crc32(file_content)
-                
+
                 print(f"Calculated CRC: {calculated_crc}")
                 stored_crc = zlib.crc32(response.content)
                 print(f"Stored CRC: {stored_crc}")
-                
+
                 if calculated_crc == stored_crc:
                     print("Descarga exitosa y CRC válido.")
                 else:
@@ -54,7 +52,7 @@ food_url = 'https://www.recetasnestle.com.mx/sitemap.xml'
 scraper = Scraper(output_file, security_url, baby_url, sports_url, food_url)
 scraper.run_scrapers()
 
-svm_classifier = SVMClassifier(output_file, kernel='sigmoid', c=1.0)
+svm_classifier = SVMClassifier(output_file, kernel='linear', c=1.0)
 svm_classifier.train()
 
 accuracy = svm_classifier.evaluate()
@@ -77,24 +75,42 @@ predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
 print(f'La noticia se clasifica en la categoría: {predicted_category[0]}')
 
 noticia_2 = 'Gemelos dicigóticos (llamados popularmente mellizos)' \
-            'Gemelos MellizosEste tipo de gemelos se produce cuando dos óvulos son fecundados por dos espermatozoides. ' \
-            'Los espermatozoides pueden ser de dos coitos diferentes y, de hecho, si se diera el caso, incluso de dos ' \
-            'padres distintos.Cada óvulo evoluciona por separado con lo que cada embrión tendrá su propio saco amniótico ' \
-            'y su propia placenta. Pueden ser del mismo o de diferente sexo y su semejanza física es la misma que se puede ' \
-            'dar entre dos hermanos de embarazos distintos. Representa entre el 65% y el 75% de los casos de embarazos ' \
-            'gemelares. Son más frecuentes este tipo de gemelos dado que, por un lado, responden a un gen hereditario y, ' \
-            'por otro, pueden estar influidos por otros factores como los tratamientos de reproducción asistida, la avanzada ' \
+            'Gemelos MellizosEste tipo de gemelos se produce cuando dos óvulos son fecundados por dos ' \
+            'espermatozoides. ' \
+            'Los espermatozoides pueden ser de dos coitos diferentes y, de hecho, si se diera el caso, incluso de ' \
+            'dos ' \
+            'padres distintos.Cada óvulo evoluciona por separado con lo que cada embrión tendrá su propio saco ' \
+            'amniótico ' \
+            'y su propia placenta. Pueden ser del mismo o de diferente sexo y su semejanza física es la misma que se ' \
+            'puede ' \
+            'dar entre dos hermanos de embarazos distintos. Representa entre el 65% y el 75% de los casos de ' \
+            'embarazos ' \
+            'gemelares. Son más frecuentes este tipo de gemelos dado que, por un lado, responden a un gen ' \
+            'hereditario ' \
+            'y, ' \
+            'por otro, pueden estar influidos por otros factores como los tratamientos de reproducción asistida, ' \
+            'la avanzada ' \
             'edad de la madre o el uso prolongado de pastillas anticonceptivas, entre otros.' \
-            'Gemelos monocigóticos Por una razón cuyo origen médico no ha sido aún identificado, en algunos casos, tras la ' \
-            'fecundación del óvulo (durante los siguientes 14 días), este sufre una división, dando lugar a dos huevos ' \
-            'idénticos. Es decir que de un solo óvulo fecundado por un solo espermatozoide surgen dos embriones. Por esta ' \
-            'razón, los gemelos monocigóticos son del mismo sexo y se parecen físicamente e incluso psíquicamente. Sucede ' \
+            'Gemelos monocigóticos Por una razón cuyo origen médico no ha sido aún identificado, en algunos casos, ' \
+            'tras la ' \
+            'fecundación del óvulo (durante los siguientes 14 días), este sufre una división, dando lugar a dos ' \
+            'huevos ' \
+            'idénticos. Es decir que de un solo óvulo fecundado por un solo espermatozoide surgen dos embriones. ' \
+            'Por esta ' \
+            'razón, los gemelos monocigóticos son del mismo sexo y se parecen físicamente e incluso psíquicamente. ' \
+            'Sucede ' \
             'esto en el 25% de los embarazos gemelares.' \
-            'Dependiendo de en qué momento post fecundación se produzca la división del óvulo, se darán procesos diferentes ' \
+            'Dependiendo de en qué momento post fecundación se produzca la división del óvulo, se darán ' \
+            'procesos ' \
+            'diferentes ' \
             'y, por tanto, los gemelos pueden ser de diferente tipo:' \
-            'Tipos de gemelos Gemelos monocigóticos diplacentarios biamnióticos La división del óvulo tuvo lugar a los 3 ' \
-            'días de la fecundación. Cada embrión cuenta con su propia placenta y su propio saco amniótico. Como en el caso ' \
-            'de los gemelos dicigóticos (mellizos) pero con la diferencia de que estos provienen del mismo óvulo y no de dos ' \
+            'Tipos de gemelos Gemelos monocigóticos diplacentarios biamnióticos La división del óvulo tuvo lugar a ' \
+            'los 3 ' \
+            'días de la fecundación. Cada embrión cuenta con su propia placenta y su propio saco amniótico. Como en ' \
+            'el caso ' \
+            'de los gemelos dicigóticos (mellizos) pero con la diferencia de que estos provienen del mismo óvulo y ' \
+            'no ' \
+            'de dos ' \
             'óvulos distintos.Suelen darse en un tercio de los casos de embarazos monocigóticos.'
 
 noticia_vectorized = svm_classifier.vectorizer.transform([noticia_2])

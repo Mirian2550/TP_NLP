@@ -10,3 +10,4 @@ unidecode
 spacy
 sentence_transformers
 prettytable
+torch
