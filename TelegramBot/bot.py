@@ -2,9 +2,69 @@ import telebot
 from telebot import types
 import logging
 import spacy
-from TelegramBot.resumen import summarize_category
+import pandas as pd
+import nltk
+from nltk.corpus import stopwords
+from sentence_transformers import SentenceTransformer
+from transformers import BartTokenizer, BertModel
+import torch
+from transformers import BartForConditionalGeneration, BartTokenizer
 
-TOKEN = '6464021236:AAH1nf0NepSAOAuh5nIJZJC36p-cxqAI7tw'
+def resumir_texto_bart(texto, max_caracteres=800):
+    model_name = "facebook/bart-large-cnn"
+    model = BartForConditionalGeneration.from_pretrained(model_name)
+    tokenizer = BartTokenizer.from_pretrained(model_name)
+    inputs = tokenizer(texto, return_tensors="pt", max_length=1024, truncation=True)
+    summary_ids = model.generate(inputs["input_ids"], max_length=max_caracteres, min_length=50, length_penalty=2.0, num_beams=4, early_stopping=True)
+    summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+    return summary
+
+def summary_test(categoria):
+    data = pd.read_csv('C:/Users/Usuario/Documents/4TO CUATRIMESTRE/Procesamiento del lenguaje natural/Trabajo_Practico1/TP_NLP/data/dataset.csv', delimiter='|')
+    data_filtrado = data[data['category'] == categoria]
+    columna_texto = data_filtrado['text']
+    all_news = '\n'.join(columna_texto.astype(str))
+    summaries = list(resumir_texto_bart(all_news, max_caracteres=3000).split("\n"))
+    return summaries
+
+
+# Inicializa el bot de Telegram con tu token
+bot = telebot.TeleBot('6430745292:AAG8DIz-jbjG9qdPJNA7MqZSiG0qy71W05w')
+
+
+
+# Maneja el comando /start
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    bot.reply_to(message, "¡Bienvenido a mi bot de noticias! Ingresa /categorias para ver las categorías disponibles.")
+
+# Maneja el comando /categorias
+@bot.message_handler(commands=['categorias'])
+def send_categories(message):
+    # Puedes personalizar las categorías disponibles aquí
+    keyboard = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True)
+    categories = ['Deportes', 'Recetas', 'Seguridad Informatica', 'Bebes']  # Personaliza con tus categorías
+    for category in categories:
+        keyboard.add(category)
+    bot.send_message(message.chat.id, "Elige una categoría:", reply_markup=keyboard)
+
+# Maneja las respuestas del usuario a las categorías
+@bot.message_handler(func=lambda message: True)
+def handle_category(message):
+    category = message.text
+    summaries = list(summary_test(category))
+    
+    if len(summaries) == 0:
+        bot.send_message(message.chat.id, "No hay noticias disponibles para esta categoría.")
+    else:
+        for summary in summaries:
+            bot.send_message(message.chat.id, summary)
+
+# Inicia el bot
+bot.polling()
+
+"""
+TOKEN = '6430745292:AAG8DIz-jbjG9qdPJNA7MqZSiG0qy71W05w'
 MAX_SUMMARY_FRAGMENTS = 8
 logging.basicConfig(filename='bot.log', level=logging.ERROR,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -20,7 +80,7 @@ def create_category_keyboard():
     item_recetas = types.KeyboardButton('Recetas')
     item_deportes = types.KeyboardButton('Deportes')
     item_tecnologia = types.KeyboardButton('Tecnología')
-    item_seguridad_informatica = types.KeyboardButton('Seguridad Informática')
+    item_seguridad_informatica = types.KeyboardButton('Seguridad Informatica')
     item_reiniciar = types.KeyboardButton('Reiniciar Bot')
     markup.row(item_recetas, item_deportes)
     markup.row(item_tecnologia, item_seguridad_informatica)
@@ -82,7 +142,7 @@ def handle_text(message):
                     bot.send_message(message.chat.id, partial_summary)
                 else:
                     break
-        elif message.text == 'Seguridad Informática':
+        elif message.text == 'Seguridad Informatica':
             bot.reply_to(message, "¡Has seleccionado la categoría de Seguridad Informática!")
             category_summary_generator = summarize_category('Seguridad Informatica')
             initial_summary = next(category_summary_generator)  # Realizar una carga inicial
@@ -122,3 +182,4 @@ def handle_info(message):
 
 
 start_bot()
+"""
