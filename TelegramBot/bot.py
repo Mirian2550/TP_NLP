@@ -32,18 +32,30 @@ def summarize_category(categoria):
     return summaries
 
 
+conversacion_reiniciada = False
+
+
 def create_category_keyboard():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     security_button = types.KeyboardButton("Seguridad Informática")
     recipes_button = types.KeyboardButton("Recetas")
     babies_button = types.KeyboardButton("Bebés")
     sports_button = types.KeyboardButton("Deporte")
+    restart_button = types.KeyboardButton("Reiniciar")
     keyboard.row(security_button, recipes_button)
     keyboard.row(babies_button, sports_button)
+    keyboard.row(restart_button)
+    keyboard.one_time_keyboard = True
+    keyboard.remove_keyboard = True
     return keyboard
 
 
-# Funciones de manejo para las opciones del teclado
+@bot.message_handler(func=lambda message: message.text == "Reiniciar")
+def handle_restart(message):
+    bot.send_message(message.chat.id, "La conversación ha sido reiniciada.",
+                     reply_markup=create_category_keyboard())
+
+
 @bot.message_handler(func=lambda message: message.text == "Seguridad Informática")
 def handle_security(message):
     result = summarize_category('Seguridad Informatica')
@@ -78,10 +90,10 @@ def handle_start(message):
 
 
 @bot.message_handler(func=lambda message: True)
-def echo_all(message):
-    bot.reply_to(message, f"Has dicho: {message.text}")
+def handle_text_messages(message):
+    if not conversacion_reiniciada:
+        bot.reply_to(message, "Lo siento, solo puedes interactuar a través de los botones disponibles.")
 
 
-# Inicia el bot
 if __name__ == '__main__':
     bot.polling()
