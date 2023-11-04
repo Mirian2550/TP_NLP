@@ -47,6 +47,7 @@ baby_url = 'https://blogdelbebe.com/post-sitemap.xml'
 sports_url = 'https://www.espn.com.ar/googlenewssitemap'
 food_url = 'https://www.recetasnestle.com.mx/sitemap.xml'
 start_time = time.time()
+print('Scrapper')
 print('Hora de inicio scrapper:', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(start_time)))
 scraper = Scraper(output_file, security_url, baby_url, sports_url, food_url)
 scraper.run_scrapers()
