@@ -287,3 +287,6 @@ class Scraper:
 
         for process in processes:
             process.join()
+
+
+
