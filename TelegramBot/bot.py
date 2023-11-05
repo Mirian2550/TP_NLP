@@ -28,6 +28,10 @@ def summarize_category(categoria):
     data_filtrado = data[data['category'] == categoria]
     columna_texto = data_filtrado['text']
     all_news = '\n'.join(columna_texto.astype(str))
+    all_news = all_news.replace('and','y')
+    all_news = all_news.replace('with', 'con')
+    all_news = all_news.replace('the', 'el')
+    all_news = all_news.replace('that', '')
     summaries = list(resumir_texto_bart(all_news, max_caracteres=3000).split("\n"))
     return summaries
 
