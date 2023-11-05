@@ -32,6 +32,7 @@ def summarize_category(categoria):
     all_news = all_news.replace('with', 'con')
     all_news = all_news.replace('the', 'el')
     all_news = all_news.replace('that', '')
+
     summaries = list(resumir_texto_bart(all_news, max_caracteres=3000).split("\n"))
     return summaries
 
