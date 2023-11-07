@@ -76,7 +76,7 @@ if __name__ == "__main__":
     noticia_vectorized = svm_classifier.vectorizer.transform([noticia_1])
     prediction = svm_classifier.model.predict(noticia_vectorized)
     predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
-    print(f'La noticia se clasifica en la categoría: {predicted_category[0]}', ' esperada:Seguridad')
+    print(f'La noticia se clasifica en la categoría: {predicted_category[0]}', 'Categoría esperada: Seguridad Informática')
 
     noticia_2 = 'Gemelos dicigóticos (llamados popularmente mellizos)' \
                 'Gemelos MellizosEste tipo de gemelos se produce cuando dos óvulos son fecundados por dos ' \
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     noticia_vectorized = svm_classifier.vectorizer.transform([noticia_2])
     prediction = svm_classifier.model.predict(noticia_vectorized)
     predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
-    print(f'La noticia se clasifica en la categoría: {predicted_category[0]}', ' esperada:Bebe')
+    print(f'La noticia se clasifica en la categoría: {predicted_category[0]}', 'Categoría esperada: Bebés')
 
     noticia_3 = 'Las dos incógnitas era el cómo y cuánto. Quién, era una pregunta que tenía una respuesta antes de ' \
                 'comenzar ' \
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     noticia_vectorized = svm_classifier.vectorizer.transform([noticia_3])
     prediction = svm_classifier.model.predict(noticia_vectorized)
     predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
-    print(f'La noticia se clasifica en la categoría: {predicted_category[0]}', ' esperada:Deporte')
+    print(f'La noticia se clasifica en la categoría: {predicted_category[0]}', 'Categoría esperada: Deportes')
 
     noticia_4 = 'Ingredientes: 75 minutos 5 unidades 1 kg Harina 0000 ' \
                 '50 g Levadura Fresca o 13g de Levadura Seca (2cdas. Al ras)' \
@@ -156,6 +156,6 @@ if __name__ == "__main__":
     noticia_vectorized = svm_classifier.vectorizer.transform([noticia_4])
     prediction = svm_classifier.model.predict(noticia_vectorized)
     predicted_category = svm_classifier.label_encoder.inverse_transform(prediction)
-    print(f'La noticia se clasifica en la categoría: {predicted_category[0]}', ' esperada:Recetas')
+    print(f'La noticia se clasifica en la categoría: {predicted_category[0]}', 'Categoría esperada: Recetas')
     generar_nube_palabras()
     title_compare('Seguridad Informatica')
